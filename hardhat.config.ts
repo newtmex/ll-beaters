@@ -1,14 +1,17 @@
+require("dotenv").config();
+
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
 
 const config: HardhatUserConfig = {
-    solidity: "0.8.19",
+    solidity: "0.8.20",
     networks: {
-        "lightlink-testnet": {
-            url: "https://replicator.pegasus.lightlink.io/rpc/v1",
-            accounts: [process.env.WALLET_KEY as string],
-            gasPrice: 1000000000,
+        hardhat: {
+            forking: {
+                url: `https://goerli.infura.io/v3/${process.env.INFURA_KEY}`,
+                blockNumber: 3_000_000
+            },
         },
     },
 };
