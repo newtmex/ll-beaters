@@ -100,6 +100,28 @@ contract Beaters is Ownable {
 
     // ENDPOINTS
 
+    function addStake(uint256 memId, uint256 famId, uint refId) public payable {
+        uint256 stake = msg.value;
+        address sender = msg.sender;
+
+        require(stake >= minStake, "Sent eth not enough");
+
+        _addUser(sender, refId);
+
+        if (memId == 0) {
+            _mintMem(sender, stake, famId);
+        } else {
+            address memberOwner = mem.ownerOf(memId);
+            require(memberOwner == sender, "Member not owned");
+
+            MemberProps storage memProps = _memberProps[memId];
+            require(memProps.totalStake > 0, "Invalid member Id");
+
+            memProps.totalStake += stake;
+            _updateMemberFam(memProps, famId);
+        }
+    }
+
     //  VIEWS
 
     function getUserId(address user) public view returns (uint userId) {
@@ -111,5 +133,17 @@ contract Beaters is Ownable {
 
     function getRefId(address user) public view returns (uint) {
         return getUserId(user);
+    }
+
+    function referredBy(address user) public view returns (uint) {
+        uint userId = getUserId(user);
+
+        return _referredBy[userId];
+    }
+
+    function memberProps(
+        uint256 memId
+    ) public view returns (MemberProps memory) {
+        return _memberProps[memId];
     }
 }
