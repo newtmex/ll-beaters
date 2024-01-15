@@ -10,7 +10,7 @@ const config: HardhatUserConfig = {
     //     hardhat: {
     //         forking: {
     //             url: `https://goerli.infura.io/v3/${process.env.INFURA_KEY}`,
-    //             blockNumber: 3_000_000
+    //             blockNumber: 60_000_000 // Block after API3 QRNG was deplyed
     //         },
     //     },
     // },

@@ -1,10 +1,13 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import {
+    loadFixture,
+    time,
+} from "@nomicfoundation/hardhat-toolbox/network-helpers";
 
 describe("Beaters", function () {
     async function deployBeatersFixture() {
-        const [owner, user1] = await ethers.getSigners();
+        const [owner, user1, user2] = await ethers.getSigners();
 
         const beaters = await ethers.deployContract("Beaters");
 
@@ -24,6 +27,7 @@ describe("Beaters", function () {
             member: { addr: memAddr, instance: member },
             owner,
             user1,
+            user2,
         };
     }
 
@@ -100,6 +104,55 @@ describe("Beaters", function () {
 
             await expect(beaters.getRefId(user1)).to.revertedWith(
                 "Not a member"
+            );
+        });
+
+        it("should increase stake left", async function () {
+            const { beaters, user1, user2 } = await loadFixture(
+                deployBeatersFixture
+            );
+
+            const stakeActions: [typeof user1, number][] = [
+                [user2, 2e14],
+                [user2, 2.43e14],
+                [user1, 2e14],
+                [user2, 6.345e14],
+                [user1, 1.345e14],
+                [user2, 9.0345e14],
+            ];
+
+            const totalStake = stakeActions.reduce(
+                (acc, [_, stake]) => acc + stake,
+                0
+            );
+
+            for (const [user, stake] of stakeActions) {
+                await beaters.connect(user).addStake(0, 0, 0, { value: stake });
+            }
+
+            expect(await beaters.stakeLeft()).to.eq(totalStake);
+        });
+    });
+
+    describe("computeWin", function () {
+        it("should increase mint left", async function () {
+            const { beaters } = await loadFixture(deployBeatersFixture);
+
+            expect(await beaters.mintLeft()).to.eq(0);
+
+            await beaters.computeWin();
+            expect(await beaters.mintLeft()).to.eq(BigInt(3000 * 10e17));
+
+            await time.increase(3 * 24 * 60 * 60); // After 3 days
+            await beaters.computeWin();
+            expect(await beaters.mintLeft()).to.eq(
+                BigInt("8997402597402597405000") // 8,997.402597402597405000
+            );
+
+            await time.increase(30 * 24 * 60 * 60); // After 30 days
+            await beaters.computeWin();
+            expect(await beaters.mintLeft()).to.eq(
+                BigInt("98542857142857142896000") // 98,542.857142857142896000
             );
         });
     });

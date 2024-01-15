@@ -22,6 +22,9 @@ contract Beaters is Ownable {
     }
 
     uint256 private _totalUsers = 0;
+    uint256 private _genesis;
+    uint256 private _lastComputeEpoch = 0;
+
     mapping(address => uint) private _usersId;
     mapping(uint => address) private _userIds;
     mapping(uint => uint) private _referredBy;
@@ -29,6 +32,9 @@ contract Beaters is Ownable {
     uint256 public minStake = 10 ** 14;
     mapping(uint256 => MemberProps) _memberProps;
     mapping(uint256 => FamilyProps) _familyProps;
+
+    uint256 public _totalStake = 0;
+    uint256 public _totalMint = 0;
 
     address public fam_addr;
     address public mem_addr;
@@ -54,6 +60,8 @@ contract Beaters is Ownable {
 
         uint256 famId = fam.safeMint(_owner);
         _mintMem(_owner, 0, famId);
+
+        _genesis = block.timestamp;
     }
 
     // INTERNALS
@@ -98,6 +106,27 @@ contract Beaters is Ownable {
         }
     }
 
+    function _currentEpoch() internal view returns (uint256) {
+        uint256 elapsedTimeSinceGenesis = block.timestamp - _genesis;
+
+        return elapsedTimeSinceGenesis / (24 * 60 * 60);
+    }
+
+    function _currentPeriod() internal view returns (uint256) {
+        return _currentEpoch() / 30;
+    }
+
+    function _getEpochMint(
+        uint256 epoch
+    ) internal pure returns (uint256 price) {
+        uint256 epochZeroMint = 3_000e18;
+        uint256 halfLife = 3_465;
+
+        epochZeroMint >>= (epoch / halfLife);
+        epoch %= halfLife;
+        price = (epochZeroMint * (1e18 - (epoch * 1e18) / halfLife)) / 1e18;
+    }
+
     // ENDPOINTS
 
     function addStake(uint256 memId, uint256 famId, uint refId) public payable {
@@ -120,6 +149,22 @@ contract Beaters is Ownable {
             memProps.totalStake += stake;
             _updateMemberFam(memProps, famId);
         }
+
+        _totalStake += stake;
+    }
+
+    function computeWin() public {
+        uint256 currentEpoch = _currentEpoch();
+        require((currentEpoch + 1) > _lastComputeEpoch, "Epoch still active");
+
+        // TODO: Get winning families using API3 QRNG
+
+        uint256 totalMintToDistribute = 0;
+        do {
+            totalMintToDistribute += _getEpochMint(_lastComputeEpoch++);
+        } while (_lastComputeEpoch < currentEpoch);
+
+        _totalMint += totalMintToDistribute;
     }
 
     //  VIEWS
@@ -145,5 +190,13 @@ contract Beaters is Ownable {
         uint256 memId
     ) public view returns (MemberProps memory) {
         return _memberProps[memId];
+    }
+
+    function stakeLeft() public view returns (uint256) {
+        return _totalStake;
+    }
+
+    function mintLeft() public view returns (uint256) {
+        return _totalMint;
     }
 }
