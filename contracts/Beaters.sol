@@ -10,12 +10,16 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 contract Beaters is Ownable {
     struct MemberProps {
         uint256 totalStake;
+        uint256 activePeriods;
+        uint256 lastActivePeriod;
+        uint256 stakeWeight;
         uint256 famId;
         uint256 rps;
     }
 
     struct FamilyProps {
-        uint256 totalStake;
+        uint256 id;
+        uint256 totalStakeWeight;
         uint256 ownerShare;
         uint256 membersShare;
         uint256 rps;
@@ -58,7 +62,7 @@ contract Beaters is Ownable {
 
         _addUser(_owner, 0);
 
-        uint256 famId = fam.safeMint(_owner);
+        uint256 famId = _mintFam(_owner);
         _mintMem(_owner, 0, famId);
 
         _genesis = block.timestamp;
@@ -66,32 +70,55 @@ contract Beaters is Ownable {
 
     // INTERNALS
 
+    function _mintFam(address to) internal returns (uint256 famId) {
+        famId = fam.safeMint(to);
+        _familyProps[famId].id = famId;
+    }
+
     function _mintMem(address to, uint256 stake, uint256 famId) internal {
         uint256 memId = mem.safeMint(to);
-
-        MemberProps storage memProps = _memberProps[memId];
-
-        memProps.totalStake = stake;
-        _updateMemberFam(memProps, famId);
+        _updateMemberFam(memId, famId, stake);
     }
 
     function _updateMemberFam(
-        MemberProps memory memProps,
-        uint256 newFamId
+        uint256 memId,
+        uint256 newFamId,
+        uint256 stake
     ) internal {
         uint256 lastFamId = fam.lastTokenId();
         require(newFamId <= lastFamId, "Invalid family Id");
 
+        MemberProps storage memProps = _memberProps[memId];
+        FamilyProps storage oldFamProps = _familyProps[memProps.famId];
+
         if (memProps.famId != 0) {
-            revert("Collect winnings from old fam");
+            require(
+                memProps.rps == oldFamProps.rps,
+                "Claim previous wins before adding new stake"
+            );
+            require(memProps.totalStake > 0, "Invalid member Id");
         }
 
-        FamilyProps storage newFamProps = _familyProps[newFamId];
+        // Strip old memProps from oldFamProps
+        oldFamProps.totalStakeWeight -= memProps.stakeWeight;
 
-        memProps.famId = newFamId;
+        // Update memProps
+        memProps.totalStake += stake;
+        memProps.lastActivePeriod = _currentPeriod();
+        memProps.activePeriods += 1;
+        memProps.stakeWeight = memProps.totalStake * memProps.activePeriods;
+
+        FamilyProps storage newFamProps;
+        if (newFamId != 0 && newFamId != memProps.famId) {
+            newFamProps = _familyProps[newFamId];
+        } else {
+            newFamProps = oldFamProps;
+        }
+
+        memProps.famId = newFamProps.id;
         memProps.rps = newFamProps.rps;
 
-        newFamProps.totalStake += memProps.totalStake;
+        newFamProps.totalStakeWeight += memProps.stakeWeight;
     }
 
     function _addUser(address user, uint refId) internal {
@@ -143,11 +170,7 @@ contract Beaters is Ownable {
             address memberOwner = mem.ownerOf(memId);
             require(memberOwner == sender, "Member not owned");
 
-            MemberProps storage memProps = _memberProps[memId];
-            require(memProps.totalStake > 0, "Invalid member Id");
-
-            memProps.totalStake += stake;
-            _updateMemberFam(memProps, famId);
+            _updateMemberFam(memId, famId, stake);
         }
 
         _totalStake += stake;
