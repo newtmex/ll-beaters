@@ -37,11 +37,7 @@ describe("Beaters", function () {
         };
     }
 
-    async function approveSpend(
-        token: Beat,
-        spender: string,
-        users: any[]
-    ) {
+    async function approveSpend(token: Beat, spender: string, users: any[]) {
         for (const user of users) {
             await token.connect(user).approve(spender, ethers.MaxUint256);
         }
@@ -222,6 +218,22 @@ describe("Beaters", function () {
             await beaters.connect(user2).claimFamilyWinnings(2);
 
             await checkBal(0n, [0n, 0n]);
+
+            expect(await beaters.stakeLeft()).to.eq(2000000000000000n);
+            await approveSpend(beat.instance, beatersAddr, [user3, owner, user2]);
+
+            await beaters
+                .connect(user3)
+                .widthdrawStake(23_575_568181818181818186n);
+            await beaters
+                .connect(owner)
+                .widthdrawStake(10_103_814935064935064936n);
+            await beaters
+                .connect(user2)
+                .widthdrawStake(10_103_814935064935064936n);
+
+            expect(await beaters.mintLeft()).to.eq(22_452_922077922077922082n);
+            expect(await beaters.stakeLeft()).to.eq(770829339567507n);
         });
     });
 

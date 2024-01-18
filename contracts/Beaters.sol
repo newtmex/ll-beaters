@@ -318,6 +318,25 @@ contract Beaters is Ownable, Qrng {
         IERC20(beat_addr).transfer(sender, winning);
     }
 
+    function widthdrawStake(uint256 beatAmt) public {
+        address sender = _msgSender();
+        // This will also check if sender has enough balance
+        ERC20Burnable(beat_addr).burnFrom(sender, beatAmt);
+
+        require(_totalMint > 0, "No mint recorded");
+
+        uint256 ethToWidthdraw = (beatAmt * _totalStake) / _totalMint;
+        // Keep 10% to attract future interest
+        ethToWidthdraw = (ethToWidthdraw * 90) / 100;
+        require(ethToWidthdraw > 0, "Nothing to widthdraw");
+
+        _totalMint -= beatAmt;
+        _totalStake -= ethToWidthdraw;
+
+        (bool success, ) = payable(sender).call{value: ethToWidthdraw}("");
+        require(success, "unable to pay user");
+    }
+
     //  VIEWS
 
     function getUserId(address user) public view returns (uint userId) {
