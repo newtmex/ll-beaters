@@ -4,23 +4,25 @@ import {
     loadFixture,
     time,
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-
-const oneEpoch = 24 * 60 * 60;
+import { Beat, Family } from "../typechain-types";
 
 describe("Beaters", function () {
+    const oneEpoch = 24 * 60 * 60;
     async function deployBeatersFixture() {
-        const [owner, user1, user2] = await ethers.getSigners();
+        const [owner, user1, user2, user3] = await ethers.getSigners();
 
-        const beaters = await ethers.deployContract("FakeBeaters");
+        const fakeAirRrp = await ethers.deployContract("FakeAirnodeRrpV0");
+        const airRrpAdr = await fakeAirRrp.getAddress();
+        const beaters = await ethers.deployContract("FakeBeaters", [airRrpAdr]);
 
         const famAddr = await beaters.fam_addr();
         const family = await ethers.getContractAt("Family", famAddr);
 
         const memAddr = await beaters.mem_addr();
-        const member = await ethers.getContractAt("Family", memAddr);
+        const member = await ethers.getContractAt("Member", memAddr);
 
         const beatAddr = await beaters.beat_addr();
-        const beat = await ethers.getContractAt("Family", beatAddr);
+        const beat = await ethers.getContractAt("Beat", beatAddr);
 
         return {
             beaters,
@@ -31,7 +33,18 @@ describe("Beaters", function () {
             owner,
             user1,
             user2,
+            user3,
         };
+    }
+
+    async function approveSpend(
+        token: Beat,
+        spender: string,
+        users: any[]
+    ) {
+        for (const user of users) {
+            await token.connect(user).approve(spender, ethers.MaxUint256);
+        }
     }
 
     it("should make initial family, with one member", async function () {
@@ -157,6 +170,58 @@ describe("Beaters", function () {
             expect(await beaters.mintLeft()).to.eq(
                 BigInt("98771428571428571428588") // 98,771.428571428571428588
             );
+        });
+
+        it("should disburse winnings", async function () {
+            const { beaters, user1, user2, user3, beat, beatersAddr, owner } =
+                await loadFixture(deployBeatersFixture);
+
+            const users = [user1, user2];
+            await approveSpend(beat.instance, beatersAddr, users);
+
+            await time.increase(30 * 24 * 60 * 60); // After 30 days
+
+            const famMintCost = await beaters.famMintCost();
+            for (const user of users) {
+                await beaters.giveUserBeat(user, famMintCost);
+                await beaters.connect(user).mintFamily();
+            }
+            await beaters.connect(user3).addStake(0, 2, 0, { value: 20e14 });
+
+            const expectedWinners = [0, 2];
+            const checkBal = async (balance: bigint, memBal: bigint[]) => {
+                for (const famId of expectedWinners) {
+                    const [, , ownerShare, membersShare] =
+                        await beaters.familyProps(famId);
+                    expect(ownerShare).to.eq(balance);
+                    expect(membersShare).to.eq(
+                        memBal[expectedWinners.indexOf(famId)]
+                    );
+                }
+            };
+
+            await checkBal(0n, [0n, 0n]);
+
+            await beaters.computeWin();
+            const randNums = [0, 236];
+            const requestId: number[] = [];
+            requestId.fill(0);
+
+            await beaters.fakeCompleteComputeWin(
+                ethers.zeroPadBytes(new Uint8Array([0]), 32),
+                randNums
+            );
+
+            await checkBal(BigInt("10103814935064935064936"), [
+                0n,
+                BigInt("23575568181818181818186"),
+            ]);
+
+            await beaters.connect(user3).claimMemberWinnings(1);
+            await beaters.connect(owner).claimFamilyWinnings(0);
+            await beaters.connect(user2).claimFamilyWinnings(2);
+
+            await checkBal(0n, [0n, 0n]);
         });
     });
 

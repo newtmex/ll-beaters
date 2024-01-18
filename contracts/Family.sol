@@ -16,9 +16,13 @@ contract Family is ERC721, Ownable {
         _safeMint(to, tokenId);
     }
 
-    function lastTokenId() external view returns (uint256) {
+    function lastTokenId() public view returns (uint256) {
         require(_nextTokenId > 0, "No Family yet");
 
         return _nextTokenId - 1;
+    }
+
+    function totalFamilies() external view returns (uint256) {
+        return lastTokenId() + 1;
     }
 }
