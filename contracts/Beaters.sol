@@ -25,6 +25,8 @@ contract Beaters is Ownable {
         uint256 rps;
     }
 
+    uint256 internal constant EPOCH_ZERO_MINT = 3_000e18;
+
     uint256 private _totalUsers = 0;
     uint256 private _genesis;
     uint256 private _lastComputeEpoch = 0;
@@ -50,6 +52,8 @@ contract Beaters is Ownable {
     Beat beat;
 
     constructor() Ownable(msg.sender) {
+        _genesis = block.timestamp;
+
         fam = new Family(address(this));
         mem = new Member(address(this));
         beat = new Beat();
@@ -64,8 +68,6 @@ contract Beaters is Ownable {
 
         uint256 famId = _mintFam(_owner);
         _mintMem(_owner, 0, famId);
-
-        _genesis = block.timestamp;
     }
 
     // INTERNALS
@@ -133,25 +135,37 @@ contract Beaters is Ownable {
         }
     }
 
-    function _currentEpoch() internal view returns (uint256) {
-        uint256 elapsedTimeSinceGenesis = block.timestamp - _genesis;
+    function _currentEpoch() internal view returns (uint256 epoch) {
+        if (block.timestamp > 0)
+            require(_genesis > 0, "Invalid genesis timestamp");
 
-        return elapsedTimeSinceGenesis / (24 * 60 * 60);
+        epoch = (block.timestamp - _genesis) / (24 * 60 * 60);
     }
 
     function _currentPeriod() internal view returns (uint256) {
         return _currentEpoch() / 30;
     }
 
-    function _getEpochMint(
-        uint256 epoch
-    ) internal pure returns (uint256 price) {
-        uint256 epochZeroMint = 3_000e18;
+    function _getEpochMint(uint256 epoch) internal pure returns (uint256 mint) {
+        mint = EPOCH_ZERO_MINT;
         uint256 halfLife = 3_465;
 
-        epochZeroMint >>= (epoch / halfLife);
+        mint >>= (epoch / halfLife);
         epoch %= halfLife;
-        price = (epochZeroMint * (1e18 - (epoch * 1e18) / halfLife)) / 1e18;
+        mint -= ((mint * epoch) / halfLife / 2);
+    }
+
+    function famMintCost() public view returns (uint256 cost) {
+        uint256 epochValue = _currentEpoch() + 1;
+
+        cost = (_getEpochMint(epochValue)) + 1e18;
+        cost *= (epochValue ** 3) % (epochValue);
+        cost *= epochValue ** 2;
+        cost /= epochValue * 1e5;
+    }
+
+    function famSwitchCost() public view returns (uint256) {
+        return (famMintCost() / 1_000) * 5;
     }
 
     // ENDPOINTS
@@ -188,6 +202,13 @@ contract Beaters is Ownable {
         } while (_lastComputeEpoch < currentEpoch);
 
         _totalMint += totalMintToDistribute;
+    }
+
+    function mintFamily() public {
+        uint256 cost = famMintCost();
+        beat.burnFrom(_msgSender(), cost);
+
+        _mintFam(_msgSender());
     }
 
     //  VIEWS

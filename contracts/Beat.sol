@@ -7,6 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract Beat is ERC20, ERC20Burnable, ERC20Permit {
     constructor() ERC20("Beat", "BTK") ERC20Permit("Beat") {
-        _mint(msg.sender, 21000000 * 10 ** decimals());
+        _mint(msg.sender, 21_000_000 * 10 ** decimals());
     }
 }

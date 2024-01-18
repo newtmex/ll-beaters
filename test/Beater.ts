@@ -5,11 +5,13 @@ import {
     time,
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 
+const oneEpoch = 24 * 60 * 60;
+
 describe("Beaters", function () {
     async function deployBeatersFixture() {
         const [owner, user1, user2] = await ethers.getSigners();
 
-        const beaters = await ethers.deployContract("Beaters");
+        const beaters = await ethers.deployContract("FakeBeaters");
 
         const famAddr = await beaters.fam_addr();
         const family = await ethers.getContractAt("Family", famAddr);
@@ -22,6 +24,7 @@ describe("Beaters", function () {
 
         return {
             beaters,
+            beatersAddr: await beaters.getAddress(),
             family: { addr: famAddr, instance: family },
             beat: { addr: beatAddr, instance: beat },
             member: { addr: memAddr, instance: member },
@@ -146,14 +149,36 @@ describe("Beaters", function () {
             await time.increase(3 * 24 * 60 * 60); // After 3 days
             await beaters.computeWin();
             expect(await beaters.mintLeft()).to.eq(
-                BigInt("8997402597402597405000") // 8,997.402597402597405000
+                BigInt("8998701298701298701300") // 8,998.701298701298701300
             );
 
             await time.increase(30 * 24 * 60 * 60); // After 30 days
             await beaters.computeWin();
             expect(await beaters.mintLeft()).to.eq(
-                BigInt("98542857142857142896000") // 98,542.857142857142896000
+                BigInt("98771428571428571428588") // 98,771.428571428571428588
             );
+        });
+    });
+
+    describe("mintFamily", function () {
+        it("should burn Beat to mint Family", async function () {
+            const { beaters, user1, beat, beatersAddr, family } =
+                await loadFixture(deployBeatersFixture);
+
+            await beat.instance
+                .connect(user1)
+                .approve(beatersAddr, ethers.MaxUint256);
+
+            await time.increase(oneEpoch);
+
+            const famMintCost = await beaters.famMintCost();
+            await beaters.giveUserBeat(user1, famMintCost);
+            expect(await beat.instance.balanceOf(user1)).to.eq(famMintCost);
+            expect(await family.instance.balanceOf(user1)).to.eq(0);
+
+            await beaters.connect(user1).mintFamily();
+            expect(await beat.instance.balanceOf(user1)).to.eq(0);
+            expect(await family.instance.balanceOf(user1)).to.eq(1);
         });
     });
 });
