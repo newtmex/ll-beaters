@@ -216,6 +216,26 @@ contract Beaters is Ownable, Qrng {
         require(familyOwner == user, "Family not owned");
     }
 
+    function _claimWinnings(address winner, uint256 amount) internal {
+        uint referrerId = referredBy(winner);
+        // 5% to referrer
+        uint256 referrerShare = (amount * 5) / 100;
+        amount -= referrerShare;
+
+        if (referrerShare > 0) {
+            if (referrerId > 0) {
+                beat.transfer(_userIds[referrerId], referrerShare);
+            } else {
+                beat.burn(referrerShare);
+                _totalMint -= referrerShare;
+            }
+        }
+
+        if (amount > 0) {
+            beat.transfer(winner, amount);
+        }
+    }
+
     // ENDPOINTS
 
     function addStake(uint256 memId, uint256 famId, uint refId) public payable {
@@ -307,7 +327,7 @@ contract Beaters is Ownable, Qrng {
             memProps.rps = famProps.rps;
             famProps.membersShare -= winning;
 
-            IERC20(beat_addr).transfer(sender, winning);
+            _claimWinnings(sender, winning);
         }
     }
 
@@ -320,7 +340,7 @@ contract Beaters is Ownable, Qrng {
 
         famProps.ownerShare = 0;
 
-        IERC20(beat_addr).transfer(sender, winning);
+        _claimWinnings(sender, winning);
     }
 
     function widthdrawStake(uint256 beatAmt) public {
