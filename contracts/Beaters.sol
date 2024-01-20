@@ -44,6 +44,8 @@ contract Beaters is Ownable, Qrng {
     mapping(bytes32 => uint256) _totalMintForRequestId;
 
     uint256 public _totalStake = 0;
+    // This caches stake until new totalMint is computed
+    uint256 public _pendingTotalStake = 0;
     uint256 public _totalMint = 0;
     // Team, Marketing, Liquidity, etc
     uint256 public _totalMintForHouse = 0;
@@ -232,7 +234,7 @@ contract Beaters is Ownable, Qrng {
             _updateMemberFam(memId, famId, stake);
         }
 
-        _totalStake += stake;
+        _pendingTotalStake += stake;
     }
 
     function computeWin() public {
@@ -244,6 +246,9 @@ contract Beaters is Ownable, Qrng {
         } while (_lastComputeEpoch < currentEpoch);
 
         _totalMint += totalMintToDistribute;
+        // Transfer pendingTotal stake now
+        _totalStake += _pendingTotalStake;
+        _pendingTotalStake = 0;
 
         // 10% of families + 1 will be selected
         uint256 familiesToChoose = fam.totalFamilies() / 10;
@@ -369,7 +374,7 @@ contract Beaters is Ownable, Qrng {
     }
 
     function stakeLeft() public view returns (uint256) {
-        return _totalStake;
+        return _totalStake + _pendingTotalStake;
     }
 
     function mintLeft() public view returns (uint256) {
