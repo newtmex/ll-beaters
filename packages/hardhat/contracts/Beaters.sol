@@ -9,7 +9,7 @@ import "./Qrng.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 contract Beaters is Ownable, Qrng {
 	struct MemberProps {
