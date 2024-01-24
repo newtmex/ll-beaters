@@ -1,23 +1,41 @@
 {
   "name": "ll-beaters",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/hardhat",
+      "packages/nextjs"
+    ]
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "account": "yarn workspace @ll-beaters/hardhat account",
+    "chain": "yarn workspace @ll-beaters/hardhat chain",
+    "fork": "yarn workspace @ll-beaters/hardhat fork",
+    "deploy": "yarn workspace @ll-beaters/hardhat deploy",
+    "verify": "yarn workspace @ll-beaters/hardhat verify",
+    "hardhat-verify": "yarn workspace @ll-beaters/hardhat hardhat-verify",
+    "compile": "yarn workspace @ll-beaters/hardhat compile",
+    "generate": "yarn workspace @ll-beaters/hardhat generate",
+    "hardhat:lint": "yarn workspace @ll-beaters/hardhat lint",
+    "hardhat:lint-staged": "yarn workspace @ll-beaters/hardhat lint-staged",
+    "hardhat:test": "yarn workspace @ll-beaters/hardhat test",
+    "test": "yarn hardhat:test",
+    "start": "yarn workspace @ll-beaters/nextjs dev",
+    "next:lint": "yarn workspace @ll-beaters/nextjs lint",
+    "next:format": "yarn workspace @ll-beaters/nextjs format",
+    "next:check-types": "yarn workspace @ll-beaters/nextjs check-types",
+    "postinstall": "husky install",
+    "precommit": "lint-staged",
+    "vercel": "yarn workspace @ll-beaters/nextjs vercel",
+    "vercel:yolo": "yarn workspace @ll-beaters/nextjs vercel:yolo"
   },
-  "author": "Levi Chimezie",
-  "license": "ISC",
+  "packageManager": "yarn@3.2.3",
   "devDependencies": {
-    "@api3/airnode-protocol": "^0.13.0",
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@openzeppelin/hardhat-upgrades": "^3.0.1",
-    "hardhat": "^2.19.4"
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3"
   },
-  "dependencies": {
-    "@openzeppelin/contracts": "^5.0.1",
-    "@uniswap/v3-core": "^1.0.1",
-    "@uniswap/v3-periphery": "^1.4.4",
-    "dotenv": "^16.3.1"
+  "resolutions": {
+    "usehooks-ts@^2.7.2": "patch:usehooks-ts@npm:^2.7.2#./.yarn/patches/usehooks-ts-npm-2.7.2-fceffe0e43.patch"
   }
 }
