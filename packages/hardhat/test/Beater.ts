@@ -10,7 +10,7 @@ describe("Beaters", function () {
 
     const fakeAirRrp = await ethers.deployContract("FakeAirnodeRrpV0");
     const airRrpAdr = await fakeAirRrp.getAddress();
-    const beaters = await ethers.deployContract("FakeBeaters", [airRrpAdr]);
+    const beaters = await ethers.deployContract("FakeBeaters", [airRrpAdr, 24]);
 
     const famAddr = await beaters.fam_addr();
     const family = await ethers.getContractAt("Family", famAddr);

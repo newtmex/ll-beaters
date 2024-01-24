@@ -52,6 +52,8 @@ contract Beaters is Ownable, Qrng {
 	// Team, Marketing, Liquidity, etc
 	uint256 public _totalMintForHouse = 0;
 
+	uint256 public epochLength;
+
 	address public fam_addr;
 	address public mem_addr;
 	address public beat_addr;
@@ -61,8 +63,12 @@ contract Beaters is Ownable, Qrng {
 	Member mem;
 	Beat beat;
 
-	constructor(address _airnodeRrp) Qrng(_airnodeRrp) Ownable(msg.sender) {
+	constructor(
+		address _airnodeRrp,
+		uint256 _epochLength
+	) Qrng(_airnodeRrp) Ownable(msg.sender) {
 		_genesis = block.timestamp;
+		epochLength = _epochLength;
 
 		fam = new Family(address(this));
 		mem = new Member(address(this));
@@ -149,7 +155,7 @@ contract Beaters is Ownable, Qrng {
 		if (block.timestamp > 0)
 			require(_genesis > 0, "Invalid genesis timestamp");
 
-		epoch = (block.timestamp - _genesis) / (24 * 60 * 60);
+		epoch = (block.timestamp - _genesis) / (epochLength * 60 * 60);
 	}
 
 	function _currentPeriod() internal view returns (uint256) {

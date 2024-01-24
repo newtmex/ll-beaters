@@ -4,7 +4,10 @@ pragma solidity ^0.8.20;
 import "./Beaters.sol";
 
 contract FakeBeaters is Beaters {
-	constructor(address _airnodeRrp) Beaters(_airnodeRrp) {}
+	constructor(
+		address _airnodeRrp,
+		uint256 _epochLength
+	) Beaters(_airnodeRrp, _epochLength) {}
 
 	function giveUserBeat(address user, uint256 amt) public onlyOwner {
 		IERC20(this.beat_addr()).transfer(user, amt);

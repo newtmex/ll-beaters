@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     FakeAirnodeRrpV0: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       abi: [
         {
           inputs: [
@@ -80,7 +80,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     FakeBeaters: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
       abi: [
         {
           inputs: [
@@ -88,6 +88,11 @@ const deployedContracts = {
               internalType: "address",
               name: "_airnodeRrp",
               type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_epochLength",
+              type: "uint256",
             },
           ],
           stateMutability: "nonpayable",
@@ -377,6 +382,19 @@ const deployedContracts = {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochLength",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -786,6 +804,7 @@ const deployedContracts = {
         completeComputeWin: "contracts/Beaters.sol",
         computeWin: "contracts/Beaters.sol",
         endpointIdUint256Array: "contracts/Beaters.sol",
+        epochLength: "contracts/Beaters.sol",
         expectingRequestWithIdToBeFulfilled: "contracts/Beaters.sol",
         famMintCost: "contracts/Beaters.sol",
         famSwitchCost: "contracts/Beaters.sol",

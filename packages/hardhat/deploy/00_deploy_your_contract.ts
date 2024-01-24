@@ -27,18 +27,20 @@ const deployBeaters: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const networkName = hre.network.name;
   let airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd";
+  let epochLength = 6;
 
   if (networkName == "localhost") {
     await deploy("FakeAirnodeRrpV0", { from: deployer });
     const fakeAirnodeRrpV0 = await hre.ethers.getContract<FakeAirnodeRrpV0>("FakeAirnodeRrpV0", deployer);
     airnodeRrp = await fakeAirnodeRrpV0.getAddress();
     beatersName = "FakeBeaters";
+    epochLength = 1;
   }
 
   await deploy(beatersName, {
     from: deployer,
     // Contract constructor arguments
-    args: [airnodeRrp],
+    args: [airnodeRrp, epochLength],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
