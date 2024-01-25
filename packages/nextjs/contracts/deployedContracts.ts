@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  1891: {
     Beat: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x6D4a2BeD07865D85Fd010102b8DB6f6fDdAaBB22",
       abi: [
         {
           inputs: [],
@@ -582,81 +582,8 @@ const deployedContracts = {
         permit: "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol",
       },
     },
-    FakeAirnodeRrpV0: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "airnode",
-              type: "address",
-            },
-            {
-              internalType: "bytes32",
-              name: "endpointId",
-              type: "bytes32",
-            },
-            {
-              internalType: "address",
-              name: "sponsor",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "sponsorWallet",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "fulfillAddress",
-              type: "address",
-            },
-            {
-              internalType: "bytes4",
-              name: "fulfillFunctionId",
-              type: "bytes4",
-            },
-            {
-              internalType: "bytes",
-              name: "parameters",
-              type: "bytes",
-            },
-          ],
-          name: "makeFullRequest",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "requestId",
-              type: "bytes32",
-            },
-          ],
-          stateMutability: "pure",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_a",
-              type: "address",
-            },
-            {
-              internalType: "bool",
-              name: "_b",
-              type: "bool",
-            },
-          ],
-          name: "setSponsorshipStatus",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-    },
-    FakeBeaters: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    Beaters: {
+      address: "0x03C9Ff9Ba4c05B488fC66C74D5a94A17cBB2F878",
       abi: [
         {
           inputs: [
@@ -1001,24 +928,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "bytes32",
-              name: "requestId",
-              type: "bytes32",
-            },
-            {
-              internalType: "uint256[]",
-              name: "qrngUint256Array",
-              type: "uint256[]",
-            },
-          ],
-          name: "fakeCompleteComputeWin",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
           inputs: [],
           name: "famMintCost",
           outputs: [
@@ -1139,24 +1048,6 @@ const deployedContracts = {
             },
           ],
           stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "user",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "amt",
-              type: "uint256",
-            },
-          ],
-          name: "giveUserBeat",
-          outputs: [],
-          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -1372,40 +1263,15 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {
-        _pendingTotalStake: "contracts/Beaters.sol",
-        _totalMint: "contracts/Beaters.sol",
-        _totalMintForHouse: "contracts/Beaters.sol",
-        _totalStake: "contracts/Beaters.sol",
-        addStake: "contracts/Beaters.sol",
-        airnode: "contracts/Beaters.sol",
-        airnodeRrp: "contracts/Beaters.sol",
-        beat_addr: "contracts/Beaters.sol",
-        claimFamilyWinnings: "contracts/Beaters.sol",
-        claimMemberWinnings: "contracts/Beaters.sol",
-        completeComputeWin: "contracts/Beaters.sol",
-        computeWin: "contracts/Beaters.sol",
-        endpointIdUint256Array: "contracts/Beaters.sol",
-        epochLength: "contracts/Beaters.sol",
-        expectingRequestWithIdToBeFulfilled: "contracts/Beaters.sol",
-        famMintCost: "contracts/Beaters.sol",
-        famSwitchCost: "contracts/Beaters.sol",
-        fam_addr: "contracts/Beaters.sol",
-        familyProps: "contracts/Beaters.sol",
-        getRefId: "contracts/Beaters.sol",
-        getUserId: "contracts/Beaters.sol",
-        mem_addr: "contracts/Beaters.sol",
-        memberProps: "contracts/Beaters.sol",
-        minStake: "contracts/Beaters.sol",
-        mintFamily: "contracts/Beaters.sol",
-        mintLeft: "contracts/Beaters.sol",
-        owner: "contracts/Beaters.sol",
-        referredBy: "contracts/Beaters.sol",
-        renounceOwnership: "contracts/Beaters.sol",
-        setRequestParameters: "contracts/Beaters.sol",
-        sponsorWallet: "contracts/Beaters.sol",
-        stakeLeft: "contracts/Beaters.sol",
-        transferOwnership: "contracts/Beaters.sol",
-        widthdrawStake: "contracts/Beaters.sol",
+        owner: "contracts/Qrng.sol",
+        renounceOwnership: "contracts/Qrng.sol",
+        transferOwnership: "contracts/Qrng.sol",
+        airnode: "contracts/Qrng.sol",
+        airnodeRrp: "contracts/Qrng.sol",
+        endpointIdUint256Array: "contracts/Qrng.sol",
+        expectingRequestWithIdToBeFulfilled: "contracts/Qrng.sol",
+        setRequestParameters: "contracts/Qrng.sol",
+        sponsorWallet: "contracts/Qrng.sol",
       },
     },
   },

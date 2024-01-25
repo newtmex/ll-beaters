@@ -11,7 +11,19 @@ export type ScaffoldConfig = {
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.hardhat],
+  targetNetworks: [
+    chains.hardhat,
+    {
+      id: 1891,
+      name: "Pegasus Testnet",
+      network: "Pegasus Testnet",
+      nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+      rpcUrls: {
+        default: { http: ["https://replicator.pegasus.lightlink.io/rpc/v1"] },
+        public: { http: ["https://replicator.pegasus.lightlink.io/rpc/v1"] },
+      },
+    },
+  ],
 
   // The interval at which your front-end polls the RPC servers for new data
   // it has no effect if you only target the local network (default is 4000)
