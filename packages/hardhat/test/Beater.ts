@@ -223,4 +223,174 @@ describe("Beaters", function () {
       expect(await family.instance.balanceOf(user1)).to.eq(1);
     });
   });
+
+  it.skip("rapid", async () => {
+    const { beaters, beat, beatersAddr, owner } = await loadFixture(deployBeatersFixture);
+    const signers = await ethers.getSigners();
+    const totalSigners = signers.length;
+
+    let totalMems = 1;
+    let totalFams = 1;
+
+    type UserStatKey = "ethDep" | "ethWidthdrawn";
+    const userStat: {
+      [key: string]: { [key in UserStatKey]: bigint } | undefined;
+    } = {};
+    const addUserStat = (user: string, key: UserStatKey, value: bigint) => {
+      const stat = userStat[user] || { ethDep: 0n, ethWidthdrawn: 0n };
+      stat[key] += value;
+      userStat[user] = stat;
+    };
+
+    const userMems: { [key: string]: number[] | null } = {};
+    userMems[owner.address] = [0];
+
+    const userFamIds: Map<number, (typeof signers)[number]> = new Map();
+    userFamIds.set(0, owner);
+
+    const getNum = (max: number, min: number) => (Math.floor(Math.random() * 1000) % (max - min + 1)) + min;
+    const randUserIndex = () => getNum(totalSigners - 1, 0);
+    const randFamId = () => getNum(totalFams - 1, 0);
+
+    const claimWinnings = async (user: (typeof signers)[number], memId: number) => {
+      // if(memId<=0){
+      //     throw `${memId} is invalid for memId`
+      // }
+
+      await beaters.connect(user).claimMemberWinnings(memId);
+      const bal = await beat.instance.balanceOf(user);
+      if (bal > 0) {
+        const stakeLeftA = await beaters.stakeLeft();
+        await approveSpend(beat.instance, beatersAddr, [user]);
+
+        await beaters.connect(user).widthdrawStake(bal);
+
+        const stakeLeft = await beaters.stakeLeft();
+        const mintLeft = await beaters.mintLeft();
+        const ethWidthdrawn = stakeLeftA - stakeLeft;
+
+        addUserStat(user.address, "ethWidthdrawn", ethWidthdrawn);
+
+        console.log(
+          `Ratio : `,
+          format((ethWidthdrawn * BigInt(1e18)) / bal),
+          "Price: ",
+          format((stakeLeft * BigInt(1e18)) / mintLeft),
+          // " stakeLeft: ",
+          // format(stakeLeft),
+          // " mintLeft: ",
+          // format(mintLeft)
+        );
+      }
+    };
+
+    let epoch = 2;
+    while (epoch <= 90) {
+      epoch *= 1.25;
+      epoch = Math.ceil(epoch);
+
+      const selectCount = randUserIndex();
+      const winningFams: number[] = [];
+
+      if (selectCount > 0) {
+        for (let i = 1; i <= selectCount; i++) {
+          const index = randUserIndex();
+          const user = signers.at(index);
+
+          if (!user) {
+            continue;
+          }
+
+          winningFams.push(randFamId());
+          const userAddr = user.address;
+
+          const list = userMems[userAddr] || [];
+
+          const memId = list.at(Math.floor(Math.random() * 1000) % (list.length + 2)) || 0;
+
+          const famId = randFamId();
+
+          const totalUsers = Object.keys(userMems).length;
+          const refId = totalUsers && Math.floor(Math.random() * 1000) % totalUsers;
+
+          const stakeValue =
+            BigInt(Math.floor(Math.random() * 1e14) + 1e14) * BigInt(Math.floor(Math.random() * 1000 * epoch));
+          memId > 0 && (await claimWinnings(user, memId));
+          await beaters.connect(user).addStake(memId, famId, refId, {
+            value: stakeValue,
+          });
+          addUserStat(userAddr, "ethDep", stakeValue);
+
+          if (memId == 0) {
+            list.push(totalMems++);
+            userMems[userAddr] = list;
+          }
+
+          if (Math.random() > 0.55) {
+            const mintCost = await beaters.famMintCost();
+            await beaters.giveUserBeat(user, mintCost);
+            await approveSpend(beat.instance, beatersAddr, [user]);
+            await beaters.connect(user).mintFamily();
+            userFamIds.set(totalFams++, user);
+          }
+        }
+      }
+
+      if (winningFams.length) {
+        await beaters.computeWin();
+        await beaters.fakeCompleteComputeWin(ethers.zeroPadBytes(new Uint8Array([0]), 32), winningFams);
+      }
+      for (const famId of winningFams) {
+        const famOwner = userFamIds.get(famId);
+        famOwner && (await beaters.connect(famOwner).claimFamilyWinnings(famId));
+
+        for (const user of signers) {
+          const memIds = user && userMems[user.address];
+
+          if (user && memIds?.length) {
+            for (const id of memIds) {
+              await claimWinnings(user, id);
+            }
+          }
+        }
+      }
+
+      await time.increase(epoch * oneEpoch);
+    }
+
+    for (const user of Object.keys(userStat)) {
+      const stat = userStat[user];
+      if (!stat) {
+        continue;
+      }
+
+      const diff = stat.ethWidthdrawn - stat.ethDep;
+      console.log(user, format(diff));
+    }
+  });
 });
+
+function format(n: bigint) {
+  const isNeg = n < 0n;
+  isNeg && (n = -1n * n);
+
+  const one = BigInt(1e18);
+  const int = n / one;
+  const mts = (int > 0 ? n - int * one : n).toString().padStart(18, "0");
+
+  return (
+    (isNeg ? "-" : "") +
+    int
+      .toString()
+      .replace(/^0{2,}/, "")
+      .split("")
+      .reverse()
+      .reduce((a, c, i) => {
+        i >= 3 && i % 3 == 0 && (a = "," + a);
+        a = c + a;
+
+        return a;
+      }, ".") +
+    mts
+  );
+}
