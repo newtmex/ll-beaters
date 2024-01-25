@@ -58,25 +58,20 @@ contract Beaters is Ownable, Qrng {
 	address public mem_addr;
 	address public beat_addr;
 
-	// Tokens
-	Family fam;
-	Member mem;
-	Beat beat;
-
 	constructor(
 		address _airnodeRrp,
-		uint256 _epochLength
+		uint256 _epochLength,
+		address _beat_addr
 	) Qrng(_airnodeRrp) Ownable(msg.sender) {
 		_genesis = block.timestamp;
 		epochLength = _epochLength;
 
-		fam = new Family(address(this));
-		mem = new Member(address(this));
-		beat = new Beat();
+		Family fam = new Family(address(this));
+		Member mem = new Member(address(this));
 
 		fam_addr = address(fam);
 		mem_addr = address(mem);
-		beat_addr = address(beat);
+		beat_addr = _beat_addr;
 
 		address _owner = owner();
 
@@ -89,12 +84,12 @@ contract Beaters is Ownable, Qrng {
 	// INTERNALS
 
 	function _mintFam(address to) internal returns (uint256 famId) {
-		famId = fam.safeMint(to);
+		famId = IFamily(fam_addr).safeMint(to);
 		_familyProps[famId].id = famId;
 	}
 
 	function _mintMem(address to, uint256 stake, uint256 famId) internal {
-		uint256 memId = mem.safeMint(to);
+		uint256 memId = IMember(mem_addr).safeMint(to);
 		_updateMemberFam(memId, famId, stake);
 	}
 
@@ -103,7 +98,7 @@ contract Beaters is Ownable, Qrng {
 		uint256 newFamId,
 		uint256 stake
 	) internal {
-		uint256 lastFamId = fam.lastTokenId();
+		uint256 lastFamId = IFamily(fam_addr).lastTokenId();
 		require(newFamId <= lastFamId, "Invalid family Id");
 
 		MemberProps storage memProps = _memberProps[memId];
@@ -186,7 +181,7 @@ contract Beaters is Ownable, Qrng {
 		for (uint index = 0; index < totalWinners; index++) {
 			// https://docs.api3.org/guides/qrng/
 			uint256 famId = (qrngUint256Array[index] %
-				(fam.lastTokenId() - 0 + 1)) + 0;
+				(IFamily(fam_addr).lastTokenId() - 0 + 1)) + 0;
 
 			FamilyProps storage famProps = _familyProps[famId];
 
@@ -208,19 +203,19 @@ contract Beaters is Ownable, Qrng {
 
 		if (toBurn > 0) {
 			_totalMint -= toBurn;
-			beat.burn(toBurn);
+			ERC20Burnable(beat_addr).burn(toBurn);
 		}
 
 		emit ReceivedUint256Array(requestId, qrngUint256Array);
 	}
 
 	function _checkMemberOwner(uint256 memId, address user) internal view {
-		address memberOwner = mem.ownerOf(memId);
+		address memberOwner = IMember(mem_addr).ownerOf(memId);
 		require(memberOwner == user, "Member not owned");
 	}
 
 	function _checkFamilyOwner(uint256 famId, address user) internal view {
-		address familyOwner = fam.ownerOf(famId);
+		address familyOwner = IFamily(fam_addr).ownerOf(famId);
 		require(familyOwner == user, "Family not owned");
 	}
 
@@ -232,15 +227,15 @@ contract Beaters is Ownable, Qrng {
 
 		if (referrerShare > 0) {
 			if (referrerId > 0) {
-				beat.transfer(_userIds[referrerId], referrerShare);
+				IERC20(beat_addr).transfer(_userIds[referrerId], referrerShare);
 			} else {
-				beat.burn(referrerShare);
+				ERC20Burnable(beat_addr).burn(referrerShare);
 				_totalMint -= referrerShare;
 			}
 		}
 
 		if (amount > 0) {
-			beat.transfer(winner, amount);
+			IERC20(beat_addr).transfer(winner, amount);
 		}
 	}
 
@@ -279,7 +274,7 @@ contract Beaters is Ownable, Qrng {
 		_pendingTotalStake = 0;
 
 		// 10% of families + 1 will be selected
-		uint256 familiesToChoose = fam.totalFamilies() / 10;
+		uint256 familiesToChoose = IFamily(fam_addr).totalFamilies() / 10;
 		familiesToChoose += 1;
 		bytes32 requestId = _makeRequestUint256Array(
 			familiesToChoose,
@@ -318,7 +313,7 @@ contract Beaters is Ownable, Qrng {
 		require(userId > 0, "Must add stake before family mint");
 
 		uint256 cost = famMintCost();
-		beat.burnFrom(sender, cost);
+		ERC20Burnable(beat_addr).burnFrom(sender, cost);
 		_totalMint -= cost;
 
 		_mintFam(sender);

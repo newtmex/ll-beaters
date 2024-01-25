@@ -4,6 +4,14 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IFamily is IERC721 {
+	function safeMint(address to) external returns (uint256 tokenId);
+
+	function lastTokenId() external view returns (uint256);
+
+	function totalFamilies() external view returns (uint256);
+}
+
 contract Family is ERC721, Ownable {
 	uint256 private _nextTokenId;
 

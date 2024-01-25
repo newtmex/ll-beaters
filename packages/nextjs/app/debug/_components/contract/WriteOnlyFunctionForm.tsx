@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { InheritanceTooltip } from "./InheritanceTooltip";
 import { Abi, AbiFunction } from "abitype";
-import { Address, TransactionReceipt } from "viem";
+import { Address, TransactionReceipt, parseEther } from "viem";
 import { useContractWrite, useNetwork, useWaitForTransaction } from "wagmi";
 import {
   ContractInput,
@@ -12,7 +12,7 @@ import {
   getInitialFormState,
   getParsedContractFunctionArgs,
 } from "~~/app/debug/_components/contract";
-import { IntegerInput } from "~~/components/scaffold-eth";
+import { EtherInput } from "~~/components/scaffold-eth";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
@@ -53,7 +53,7 @@ export const WriteOnlyFunctionForm = ({
   const handleWrite = async () => {
     if (writeAsync) {
       try {
-        const makeWriteWithParams = () => writeAsync({ value: BigInt(txValue) });
+        const makeWriteWithParams = () => writeAsync({ value: parseEther(txValue.toString()) });
         await writeTxn(makeWriteWithParams);
         onChange();
       } catch (e: any) {
@@ -98,13 +98,13 @@ export const WriteOnlyFunctionForm = ({
         </p>
         {inputs}
         {abiFunction.stateMutability === "payable" ? (
-          <IntegerInput
-            value={txValue}
+          <EtherInput
+            value={txValue.toString()}
             onChange={updatedTxValue => {
               setDisplayedTxResult(undefined);
               setTxValue(updatedTxValue);
             }}
-            placeholder="value (wei)"
+            placeholder="Eth Amount"
           />
         ) : null}
         <div className="flex justify-between gap-2">

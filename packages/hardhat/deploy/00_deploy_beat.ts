@@ -1,8 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { FakeAirnodeRrpV0 } from "../typechain-types";
-
-let beatersName = "Beaters";
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -10,7 +7,7 @@ let beatersName = "Beaters";
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployBeaters: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployBeat: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -25,31 +22,13 @@ const deployBeaters: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  const networkName = hre.network.name;
-  let airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd";
-  let epochLength = 6;
-
-  if (networkName == "localhost") {
-    await deploy("FakeAirnodeRrpV0", { from: deployer });
-    const fakeAirnodeRrpV0 = await hre.ethers.getContract<FakeAirnodeRrpV0>("FakeAirnodeRrpV0", deployer);
-    airnodeRrp = await fakeAirnodeRrpV0.getAddress();
-    beatersName = "FakeBeaters";
-    epochLength = 1;
-  }
-
-  await deploy(beatersName, {
+  await deploy("Beat", {
     from: deployer,
-    // Contract constructor arguments
-    args: [airnodeRrp, epochLength],
-    log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
   });
 };
 
-export default deployBeaters;
+export default deployBeat;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourContract
-deployBeaters.tags = [beatersName];
+deployBeat.tags = ["Beat"];

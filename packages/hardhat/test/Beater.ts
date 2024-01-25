@@ -8,9 +8,12 @@ describe("Beaters", function () {
   async function deployBeatersFixture() {
     const [owner, user1, user2, user3] = await ethers.getSigners();
 
+    const beat = await ethers.deployContract("Beat");
+    const beatAddr = await beat.getAddress();
+
     const fakeAirRrp = await ethers.deployContract("FakeAirnodeRrpV0");
     const airRrpAdr = await fakeAirRrp.getAddress();
-    const beaters = await ethers.deployContract("FakeBeaters", [airRrpAdr, 24]);
+    const beaters = await ethers.deployContract("FakeBeaters", [airRrpAdr, 24, beatAddr]);
 
     const famAddr = await beaters.fam_addr();
     const family = await ethers.getContractAt("Family", famAddr);
@@ -18,12 +21,13 @@ describe("Beaters", function () {
     const memAddr = await beaters.mem_addr();
     const member = await ethers.getContractAt("Member", memAddr);
 
-    const beatAddr = await beaters.beat_addr();
-    const beat = await ethers.getContractAt("Beat", beatAddr);
+    const beatersAddr = await beaters.getAddress();
+    const beatTotal = await beat.totalSupply();
+    await beat.connect(owner).transfer(beatersAddr, beatTotal);
 
     return {
       beaters,
-      beatersAddr: await beaters.getAddress(),
+      beatersAddr,
       family: { addr: famAddr, instance: family },
       beat: { addr: beatAddr, instance: beat },
       member: { addr: memAddr, instance: member },
