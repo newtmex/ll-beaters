@@ -9,8 +9,6 @@ import "./Qrng.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-// import "hardhat/console.sol";
-
 contract Beaters is Ownable, Qrng {
 	struct MemberProps {
 		uint256 totalStake;
@@ -411,11 +409,10 @@ contract Beaters is Ownable, Qrng {
 
 	function famMintCost() public view returns (uint256 cost) {
 		uint256 epochValue = _currentEpoch() + 1;
-
 		cost = (_getEpochMint(epochValue)) + 1e18;
-		cost *= (epochValue ** 3) % (epochValue);
 		cost *= epochValue ** 2;
-		cost /= epochValue * 1e5;
+		cost /= epochValue * 1e6;
+		cost *= 1_039;
 	}
 
 	function famSwitchCost() public view returns (uint256) {

@@ -11,6 +11,7 @@ contract FakeBeaters is Beaters {
 	) Beaters(_airnodeRrp, _epochLength, _beat_addr) {}
 
 	function giveUserBeat(address user, uint256 amt) public {
+		_totalMint += amt;
 		IERC20(this.beat_addr()).transfer(user, amt);
 	}
 

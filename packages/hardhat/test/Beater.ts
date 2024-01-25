@@ -222,6 +222,25 @@ describe("Beaters", function () {
       expect(await beat.instance.balanceOf(user1)).to.eq(0);
       expect(await family.instance.balanceOf(user1)).to.eq(1);
     });
+
+    it("increases famMintCost", async function () {
+      const { beaters } = await loadFixture(deployBeatersFixture);
+
+      let famMintCost = await beaters.famMintCost();
+      expect(format(famMintCost)).to.eq("3.117589216450215861");
+
+      await time.increase(10 * oneEpoch);
+      famMintCost = await beaters.famMintCost();
+      expect(format(famMintCost)).to.eq("34.244005190476189833");
+
+      await time.increase(4_864 * oneEpoch);
+      famMintCost = await beaters.famMintCost();
+      expect(format(famMintCost)).to.eq("6,056.902787337662337325");
+
+      await time.increase(24_864 * oneEpoch);
+      famMintCost = await beaters.famMintCost();
+      expect(format(famMintCost)).to.eq("287.500738496956168143");
+    });
   });
 
   it.skip("rapid", async () => {

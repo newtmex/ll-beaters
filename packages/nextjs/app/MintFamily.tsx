@@ -20,7 +20,7 @@ const MintFamily = () => {
     args: [address],
   });
 
-  const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt: famMintCost?.toString() || "0" });
+  const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt: formatEther(famMintCost || 0n) });
   const { writeAsync: mintFamily, isLoading: mintFamilyIsLoading } = useScaffoldContractWrite({
     contractName: "FakeBeaters",
     functionName: "mintFamily",
