@@ -12,7 +12,6 @@ export type ScaffoldConfig = {
 const scaffoldConfig = {
   // The networks on which your DApp is live
   targetNetworks: [
-    chains.hardhat,
     {
       id: 1891,
       name: "Pegasus Testnet",

@@ -13,7 +13,7 @@ const MintFamily = () => {
 
   const { address } = useAccount();
 
-  const { data: famMintCost } = useScaffoldContractRead({ contractName: "FakeBeaters", functionName: "famMintCost" });
+  const { data: famMintCost } = useScaffoldContractRead({ contractName: "Beaters", functionName: "famMintCost" });
   const { data: beatBal } = useScaffoldContractRead({
     contractName: "Beat",
     functionName: "balanceOf",
@@ -22,7 +22,7 @@ const MintFamily = () => {
 
   const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt: formatEther(famMintCost || 0n) });
   const { writeAsync: mintFamily, isLoading: mintFamilyIsLoading } = useScaffoldContractWrite({
-    contractName: "FakeBeaters",
+    contractName: "Beaters",
     functionName: "mintFamily",
   });
 

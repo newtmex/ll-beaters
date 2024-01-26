@@ -25,7 +25,7 @@ const WidthdrawStake = () => {
   const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt });
 
   const { writeAsync: widthdrawStake, isLoading: widthdrawStakeIsLoading } = useScaffoldContractWrite({
-    contractName: "FakeBeaters",
+    contractName: "Beaters",
     functionName: "widthdrawStake",
     args: [parseEther(beatAmt)],
   });

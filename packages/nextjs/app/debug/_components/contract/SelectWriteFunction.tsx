@@ -5,7 +5,7 @@ import { AbiFunction } from "abitype";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 export const SelectWriteFunction = ({ name }: { name: string }) => {
-  const { data: deployedContractData } = useDeployedContractInfo("FakeBeaters");
+  const { data: deployedContractData } = useDeployedContractInfo("Beaters");
 
   if (!deployedContractData) {
     return <div>Loading...</div>;
