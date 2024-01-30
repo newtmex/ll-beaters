@@ -1,6 +1,7 @@
+import useLfAccount from "../liteflow/useAccount";
 import { useEffectOnce, useLocalStorage, useReadLocalStorage } from "usehooks-ts";
 import { Chain, hardhat } from "viem/chains";
-import { Connector, useAccount, useConnect } from "wagmi";
+import { Connector, useAccount, useConnect, useDisconnect } from "wagmi";
 import scaffoldConfig from "~~/scaffold.config";
 import { burnerWalletId } from "~~/services/web3/wagmi-burner/BurnerConnector";
 import { getTargetNetworks } from "~~/utils/scaffold-eth";
@@ -60,13 +61,23 @@ export const useAutoConnect = (): void => {
   const wagmiWalletValue = useReadLocalStorage<string>(WAGMI_WALLET_STORAGE_KEY);
   const [walletId, setWalletId] = useLocalStorage<string>(SCAFFOLD_WALLET_STORAGE_KEY, wagmiWalletValue ?? "");
   const connectState = useConnect();
+  const { login } = useLfAccount();
+  const { disconnect } = useDisconnect();
+
   useAccount({
-    onConnect({ connector }) {
+    async onConnect({ connector }) {
       setWalletId(connector?.id ?? "");
+      if (!connector) return;
+      try {
+        await login(connector);
+      } catch (e: any) {
+        disconnect();
+      }
     },
     onDisconnect() {
       window.localStorage.setItem(WAGMI_WALLET_STORAGE_KEY, JSON.stringify(""));
       setWalletId("");
+      void disconnect();
     },
   });
 

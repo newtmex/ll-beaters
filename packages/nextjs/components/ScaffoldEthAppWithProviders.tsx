@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { LiteflowProvider } from "@liteflow/react";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import { Toaster } from "react-hot-toast";
 import { WagmiConfig } from "wagmi";
@@ -42,13 +43,16 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   return (
     <WagmiConfig config={wagmiConfig}>
       <ProgressBar />
-      <RainbowKitProvider
-        chains={appChains.chains}
-        avatar={BlockieAvatar}
-        theme={isDarkMode ? darkTheme() : lightTheme()}
-      >
-        <ScaffoldEthApp>{children}</ScaffoldEthApp>
-      </RainbowKitProvider>
+
+      <LiteflowProvider apiKey={process.env.NEXT_PUBLIC_LITEFLOW_API_KEY || ""}>
+        <RainbowKitProvider
+          chains={appChains.chains}
+          avatar={BlockieAvatar}
+          theme={isDarkMode ? darkTheme() : lightTheme()}
+        >
+          <ScaffoldEthApp>{children}</ScaffoldEthApp>
+        </RainbowKitProvider>
+      </LiteflowProvider>
     </WagmiConfig>
   );
 };
