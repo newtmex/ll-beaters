@@ -3,10 +3,16 @@ import { AssetDetailFragment, FetchOwnedAssetsQuery, OwnershipsOrderBy, useFetch
 import useAccount from "./liteflow/useAccount";
 import useOrderByQuery from "./liteflow/useOrderByQuery";
 import usePaginateQuery from "./liteflow/usePaginateQuery";
+import { useScaffoldContractRead } from "./scaffold-eth";
 
 let cachedData: FetchOwnedAssetsQuery | undefined;
 
-export const useOwnedNFTs = () => {
+export const useOwnedNFTs = (group: "all" | "member" | "family" = "all") => {
+  const { data: _memAddr } = useScaffoldContractRead({ contractName: "Beaters", functionName: "mem_addr" });
+  const { data: _famAddr } = useScaffoldContractRead({ contractName: "Beaters", functionName: "fam_addr" });
+  const memAddr = _memAddr?.toLowerCase();
+  const famAddr = _famAddr?.toLowerCase();
+
   const { limit, offset } = usePaginateQuery();
   const orderBy = useOrderByQuery<OwnershipsOrderBy>("CREATED_AT_DESC");
   const { address } = useAccount();
@@ -25,9 +31,15 @@ export const useOwnedNFTs = () => {
     },
   });
 
-  return useMemo(
+  const nfts = useMemo(
     () =>
       (cachedData = data || cachedData)?.owned?.nodes.map(x => x.asset).filter((x): x is AssetDetailFragment => !!x),
     [data],
   );
+
+  return group == "all"
+    ? nfts
+    : nfts
+        ?.filter(nft => nft.collectionAddress == (group == "family" ? famAddr : memAddr))
+        .sort((a, b) => +a.tokenId - +b.tokenId);
 };

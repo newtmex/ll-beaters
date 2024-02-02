@@ -1,7 +1,7 @@
-import { SelectWriteFunction } from "../debug/_components/contract/SelectWriteFunction";
+import ClaimWinnings from "./ClaimWinnings";
 import { NextPage } from "next";
 
-const ClaimWinnings: NextPage = () => {
+const ClaimWinningsPage: NextPage = () => {
   return (
     <>
       <div className="flex items-center flex-col flex-grow pt-10">
@@ -15,8 +15,7 @@ const ClaimWinnings: NextPage = () => {
         <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
           <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
             <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SelectWriteFunction name="claimMemberWinnings" />
-              <SelectWriteFunction name="claimFamilyWinnings" />
+              <ClaimWinnings />
             </div>
           </div>
         </div>
@@ -25,4 +24,4 @@ const ClaimWinnings: NextPage = () => {
   );
 };
 
-export default ClaimWinnings;
+export default ClaimWinningsPage;

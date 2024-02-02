@@ -43,7 +43,7 @@ const AddStake = () => {
     }
   };
 
-  const ownedMembers = useOwnedNFTs();
+  const ownedMembers = useOwnedNFTs("member");
   const families = useFamilies();
 
   const isLoading = !ownedMembers || !families || addStakeIsLoading;
