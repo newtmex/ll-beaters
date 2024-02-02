@@ -1,4 +1,4 @@
-import { useApproveSpendBeat } from "./hooks";
+import { useApproveSpendBeat } from "../hooks";
 import { formatEther } from "viem";
 import { useAccount, useNetwork } from "wagmi";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";

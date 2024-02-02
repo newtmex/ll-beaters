@@ -4,6 +4,7 @@ import { useAuthenticate, useIsLoggedIn } from "@liteflow/react";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { useCookies } from "react-cookie";
 import { Connector, useAccount as useWagmiAccount } from "wagmi";
+import { COOKIES, COOKIE_JWT_TOKEN } from "~~/cookies";
 
 type AccountDetail = {
   isLoggedIn: boolean;
@@ -14,10 +15,6 @@ type AccountDetail = {
   login: (connector: Connector) => Promise<void>;
 };
 
-export const COOKIE_JWT_TOKEN = "jwt-token";
-export type COOKIES = {
-  [COOKIE_JWT_TOKEN]: string | undefined;
-};
 const COOKIE_OPTIONS = {
   secure: true,
   sameSite: true,

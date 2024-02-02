@@ -1,0 +1,101 @@
+query FetchCollectionDetails($collectionAddress: Address!, $chainId: Int!) {
+  collection(address: $collectionAddress, chainId: $chainId) {
+    address
+    chainId
+    cover
+    image
+    name
+    description
+    discord
+    twitter
+    website
+    standard
+    deployerAddress
+    deployer {
+      address
+      name
+      username
+      verification {
+        status
+      }
+    }
+    totalVolume {
+      refCode
+      valueInRef
+    }
+    floorPrice {
+      refCode
+      valueInRef
+    }
+  }
+}
+
+query FetchCollectionMetrics($collectionAddress: Address!, $chainId: Int!) {
+  collection(address: $collectionAddress, chainId: $chainId) {
+    address
+    chainId
+    numberOfOwners
+    supply
+    floorPrice {
+      valueInRef
+      refCode
+    }
+    totalVolume {
+      valueInRef
+      refCode
+    }
+  }
+}
+
+query FetchCollection(
+  $offset: Int!
+  $limit: Int!
+  $chainId: Int!
+  $collectionAddress: Address!
+  $orderBy: [AssetsOrderBy!]
+) {
+  assets(
+    filter: {
+      quantity: { greaterThan: "0" }
+      chainId: { equalTo: $chainId }
+      collectionAddress: { equalTo: $collectionAddress }
+    }
+    orderBy: $orderBy
+    first: $limit
+    offset: $offset
+  ) {
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      chainId
+      collectionAddress
+      tokenId
+      name
+      description
+      image
+      imageMimetype
+      createdAt
+      creator {
+        username
+        address
+        name
+        image
+        verification {
+          status
+        }
+      }
+      collection {
+        chainId
+        address
+        image
+        name
+        standard
+      }
+
+      quantity
+    }
+  }
+}

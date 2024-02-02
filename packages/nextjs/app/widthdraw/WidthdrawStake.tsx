@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useApproveSpendBeat } from "../hooks";
 import { formatEther, parseEther } from "viem";
 import { useAccount, useNetwork } from "wagmi";
 import { IntegerInput } from "~~/components/scaffold-eth";
+import { useApproveSpendBeat } from "~~/hooks";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";

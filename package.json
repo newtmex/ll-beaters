@@ -21,7 +21,7 @@
     "hardhat:lint-staged": "yarn workspace @ll-beaters/hardhat lint-staged",
     "hardhat:test": "yarn workspace @ll-beaters/hardhat test",
     "test": "yarn hardhat:test",
-    "start": "yarn workspace @ll-beaters/nextjs dev",
+    "start": "yarn workspace @ll-beaters/nextjs graphql-codegen && yarn workspace @ll-beaters/nextjs dev",
     "next:lint": "yarn workspace @ll-beaters/nextjs lint",
     "next:format": "yarn workspace @ll-beaters/nextjs format",
     "next:check-types": "yarn workspace @ll-beaters/nextjs check-types",
