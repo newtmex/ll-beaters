@@ -1,5 +1,3 @@
-"use client";
-
 import AddStake from "./_components/AddStake";
 import MintFamily from "./_components/MintFamily";
 import type { NextPage } from "next";

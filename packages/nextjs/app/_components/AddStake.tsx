@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { parseEther } from "viem";
 import { useNetwork } from "wagmi";

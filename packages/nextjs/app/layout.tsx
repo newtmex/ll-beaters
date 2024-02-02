@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Metadata } from "next";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
@@ -26,7 +27,9 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html>
       <body>
-        <ScaffoldEthAppWithProviders environment={environment}>{children}</ScaffoldEthAppWithProviders>
+        <Suspense>
+          <ScaffoldEthAppWithProviders environment={environment}>{children}</ScaffoldEthAppWithProviders>
+        </Suspense>
       </body>
     </html>
   );

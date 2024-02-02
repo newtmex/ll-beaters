@@ -1,3 +1,5 @@
+"use client";
+
 import { useApproveSpendBeat } from "../../hooks";
 import { formatEther } from "viem";
 import { useAccount, useNetwork } from "wagmi";
