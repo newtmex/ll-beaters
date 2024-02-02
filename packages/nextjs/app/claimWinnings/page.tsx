@@ -1,4 +1,4 @@
-import ClaimWinnings from "./ClaimWinnings";
+import ClaimWinnings from "./_components/ClaimWinnings";
 import { NextPage } from "next";
 
 const ClaimWinningsPage: NextPage = () => {

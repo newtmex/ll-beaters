@@ -1,7 +1,7 @@
 "use client";
 
-import AddStake from "./AddStake";
-import MintFamily from "./MintFamily";
+import AddStake from "./_components/AddStake";
+import MintFamily from "./_components/MintFamily";
 import type { NextPage } from "next";
 
 const Home: NextPage = () => {

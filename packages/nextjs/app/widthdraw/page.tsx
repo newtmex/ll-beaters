@@ -1,4 +1,4 @@
-import WidthdrawStake from "./WidthdrawStake";
+import WidthdrawStake from "./_components/WidthdrawStake";
 import { NextPage } from "next";
 
 const Widthdraw: NextPage = () => {
