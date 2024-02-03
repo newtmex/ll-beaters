@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatEther } from "viem";
 import { useNetwork } from "wagmi";
+import { useBeatBalance } from "~~/hooks";
 import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useOwnedNFTs } from "~~/hooks/useOwnedNFTs";
@@ -30,17 +32,20 @@ const ClaimWinnings = () => {
     args: [tokenId],
   });
 
+  const { data: beatBal, refetch: refetchBeatBal } = useBeatBalance();
+
   const handleWrite = async () => {
     try {
       await (group == "family" ? claimFamilyWinnings() : claimMemberWinnings());
+      refetchBeatBal();
     } catch (e: any) {
       const message = getParsedError(e);
       notification.error(message);
     }
   };
 
-  const ownedMembers = useOwnedNFTs("member");
-  const ownedFamilies = useOwnedNFTs("family");
+  const { nfts: ownedMembers } = useOwnedNFTs("member");
+  const { nfts: ownedFamilies } = useOwnedNFTs("family");
 
   const Display = ({ lGroup }: { lGroup: Group }) => {
     const [title, selection, nfts, isLoading] =
@@ -49,41 +54,46 @@ const ClaimWinnings = () => {
         : ["claimMemberWinnings", "MemID", ownedMembers, claimMemberWinningsIsLoading];
 
     return (
-      <div className="py-5 space-y-3 first:pt-0 last:pb-1">
-        <h2>{title}</h2>
-        <div className="flex items-center">
-          {selection}:{" "}
-          <select className="select w-full max-w-xs">
-            {nfts && [
-              <option key={`${selection}-claim`} selected={group != lGroup}>
-                Select {selection}
-              </option>,
-              ...nfts.map(ownedNft => (
-                <option
-                  selected={group == lGroup && tokenId?.toString() == ownedNft.tokenId}
-                  onClick={() => {
-                    setClaimData({ group: lGroup, tokenId: ownedNft.tokenId });
-                  }}
-                  key={`${selection}-claim${ownedNft.tokenId}`}
-                >
-                  {ownedNft.tokenId}
-                </option>
-              )),
-            ]}
-          </select>
-        </div>
+      <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
+        <div className="py-5 space-y-3 first:pt-0 last:pb-1">
+          <h2>{title}</h2>
+          <div className="flex items-center">
+            {selection}:{" "}
+            <select
+              className="select w-full max-w-xs"
+              onChange={e => {
+                const ownedNft = nfts?.at(e.target.selectedIndex - 1);
+                ownedNft && setClaimData({ group: lGroup, tokenId: ownedNft.tokenId });
+              }}
+            >
+              {nfts && [
+                <option key={`${selection}-claim`} disabled selected={group != lGroup}>
+                  Select {selection}
+                </option>,
+                ...nfts.map(ownedNft => (
+                  <option
+                    selected={group == lGroup && tokenId?.toString() == ownedNft.tokenId}
+                    key={`${selection}-claim${ownedNft.tokenId}`}
+                  >
+                    {ownedNft.tokenId}
+                  </option>
+                )),
+              ]}
+            </select>
+          </div>
 
-        <div
-          className={`flex ${
-            writeDisabled &&
-            "tooltip before:content-[attr(data-tip)] before:right-[-10px] before:left-auto before:transform-none"
-          }`}
-          data-tip={`${writeDisabled && "Wallet not connected or in the wrong network"}`}
-        >
-          <button className="btn btn-secondary btn-sm" disabled={writeDisabled || isLoading} onClick={handleWrite}>
-            {isLoading && <span className="loading loading-spinner loading-xs"></span>}
-            Claim Winnings💸
-          </button>
+          <div
+            className={`flex ${
+              writeDisabled &&
+              "tooltip before:content-[attr(data-tip)] before:right-[-10px] before:left-auto before:transform-none"
+            }`}
+            data-tip={`${writeDisabled && "Wallet not connected or in the wrong network"}`}
+          >
+            <button className="btn btn-secondary btn-sm" disabled={writeDisabled || isLoading} onClick={handleWrite}>
+              {isLoading && <span className="loading loading-spinner loading-xs"></span>}
+              Claim Winnings💸
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -100,13 +110,8 @@ const ClaimWinnings = () => {
 
   return (
     <>
+      Beat Bal: {formatEther(beatBal || 0n)}
       {ownedMembers.length && <Display lGroup="member" key="mem-display" />}
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
       {ownedFamilies.length && <Display lGroup="family" key="fam-display" />}
     </>
   );

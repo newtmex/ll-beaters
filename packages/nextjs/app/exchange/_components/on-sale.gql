@@ -1,0 +1,70 @@
+query FetchOnSaleAssets($limit: Int!, $offset: Int!, $orderBy: [OffersOrderBy!], $address: Address!, $now: Datetime!) {
+  offers: offers(
+    orderBy: $orderBy
+    first: $limit
+    offset: $offset
+    filter: {
+      type: { equalTo: SALE }
+      signature: { isNull: false }
+      expiredAt: { greaterThan: $now }
+      status: { equalTo: ACTIVE }
+    }
+  ) {
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      unitPrice
+      availableQuantity
+      expiredAt
+      createdAt
+      maker {
+        address
+        name
+        image
+        verification {
+          status
+        }
+      }
+      asset {
+        id
+        chainId
+        collectionAddress
+        tokenId
+        name
+        image
+        imageMimetype
+        owned: ownership(ownerAddress: $address) {
+          quantity
+        }
+        firstSale: sales(
+          first: 1
+          orderBy: [UNIT_PRICE_IN_REF_ASC, CREATED_AT_ASC]
+          filter: { expiredAt: { greaterThan: $now } }
+        ) {
+          totalCount
+          totalCurrencyDistinctCount
+          nodes {
+            id
+            unitPrice
+            currency {
+              image
+              id
+              decimals
+              symbol
+            }
+          }
+        }
+      }
+      currency {
+        id
+        name
+        image
+        decimals
+        symbol
+      }
+    }
+  }
+}

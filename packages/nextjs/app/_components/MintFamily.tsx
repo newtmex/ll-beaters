@@ -1,8 +1,8 @@
 "use client";
 
-import { useApproveSpendBeat } from "../../hooks";
+import { useApproveSpendBeat, useBeatBalance } from "../../hooks";
 import { formatEther } from "viem";
-import { useAccount, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
@@ -13,14 +13,8 @@ const MintFamily = () => {
 
   const writeDisabled = !chain || chain?.id !== targetNetwork.id;
 
-  const { address } = useAccount();
-
   const { data: famMintCost } = useScaffoldContractRead({ contractName: "Beaters", functionName: "famMintCost" });
-  const { data: beatBal } = useScaffoldContractRead({
-    contractName: "Beat",
-    functionName: "balanceOf",
-    args: [address],
-  });
+  const { data: beatBal, refetch: refetchBeatBal } = useBeatBalance();
 
   const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt: formatEther(famMintCost || 0n) });
   const { writeAsync: mintFamily, isLoading: mintFamilyIsLoading } = useScaffoldContractWrite({
@@ -34,6 +28,7 @@ const MintFamily = () => {
     try {
       await approveSpend();
       await mintFamily();
+      refetchBeatBal();
     } catch (e: any) {
       const message = getParsedError(e);
       notification.error(message);

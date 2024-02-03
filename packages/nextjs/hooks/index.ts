@@ -1,5 +1,6 @@
 import { parseEther } from "viem";
-import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useAccount } from "wagmi";
+import { useDeployedContractInfo, useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const useApproveSpendBeat = ({ beatAmt }: { beatAmt: string }) => {
   const { data: beatersData } = useDeployedContractInfo("Beaters");
@@ -11,4 +12,14 @@ export const useApproveSpendBeat = ({ beatAmt }: { beatAmt: string }) => {
   });
 
   return { approveSpend, approveSpendIsLoading };
+};
+
+export const useBeatBalance = () => {
+  const { address } = useAccount();
+
+  return useScaffoldContractRead({
+    contractName: "Beat",
+    functionName: "balanceOf",
+    args: [address],
+  });
 };

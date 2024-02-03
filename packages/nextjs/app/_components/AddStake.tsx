@@ -45,7 +45,7 @@ const AddStake = () => {
     }
   };
 
-  const ownedMembers = useOwnedNFTs("member");
+  const { nfts: ownedMembers } = useOwnedNFTs("member");
   const families = useFamilies();
 
   const isLoading = !ownedMembers || !families || addStakeIsLoading;
@@ -62,15 +62,17 @@ const AddStake = () => {
         {!ownedMembers?.length ? (
           addStakeData.memId
         ) : (
-          <select className="select w-full max-w-xs">
+          <select
+            className="select w-full max-w-xs"
+            onChange={e => {
+              const ownedMember = ownedMembers.at(e.target.selectedIndex);
+              if (ownedMember) {
+                setAddStakeData("memId", ownedMember.tokenId);
+              }
+            }}
+          >
             {[{ tokenId: "0" }, ...ownedMembers].map(ownedMember => (
-              <option
-                selected={addStakeData.memId == ownedMember.tokenId}
-                onClick={() => {
-                  setAddStakeData("memId", ownedMember.tokenId);
-                }}
-                key={`mem-add${ownedMember.tokenId}`}
-              >
+              <option selected={addStakeData.memId == ownedMember.tokenId} key={`mem-add${ownedMember.tokenId}`}>
                 {ownedMember.tokenId}
               </option>
             ))}
@@ -79,15 +81,15 @@ const AddStake = () => {
       </div>
       <div className="flex items-center">
         FamID:{" "}
-        <select className="select w-full max-w-xs">
+        <select
+          className="select w-full max-w-xs"
+          onChange={e => {
+            const family = families.at(e.target.selectedIndex);
+            family && setAddStakeData("famId", family.tokenId);
+          }}
+        >
           {families?.map(family => (
-            <option
-              selected={family.tokenId == addStakeData.famId}
-              onClick={() => {
-                setAddStakeData("famId", family.tokenId);
-              }}
-              key={`fam-add${family.tokenId}`}
-            >
+            <option selected={family.tokenId == addStakeData.famId} key={`fam-add${family.tokenId}`}>
               {family.tokenId}
             </option>
           ))}

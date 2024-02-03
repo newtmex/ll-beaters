@@ -2,25 +2,20 @@
 
 import { useState } from "react";
 import { formatEther, parseEther } from "viem";
-import { useAccount, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { IntegerInput } from "~~/components/scaffold-eth";
-import { useApproveSpendBeat } from "~~/hooks";
-import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useApproveSpendBeat, useBeatBalance } from "~~/hooks";
+import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
 
 const WidthdrawStake = () => {
-  const { address: connectedAddress } = useAccount();
   const { chain } = useNetwork();
   const { targetNetwork } = useTargetNetwork();
   const writeDisabled = !chain || chain?.id !== targetNetwork.id;
   const [beatAmt, setBeatAmt] = useState("0");
 
-  const { data: beatBal } = useScaffoldContractRead({
-    contractName: "Beat",
-    functionName: "balanceOf",
-    args: [connectedAddress],
-  });
+  const { data: beatBal, refetch: refetchBeatBal } = useBeatBalance();
 
   const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt });
 
@@ -36,6 +31,7 @@ const WidthdrawStake = () => {
     try {
       await approveSpend();
       await widthdrawStake();
+      refetchBeatBal();
     } catch (e: any) {
       const message = getParsedError(e);
       notification.error(message);
