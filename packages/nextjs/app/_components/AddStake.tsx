@@ -29,12 +29,12 @@ const AddStake = () => {
   const { data: selectedMem } = useScaffoldContractRead({
     contractName: "Beaters",
     functionName: "memberProps",
-    args: [!!addStakeData.memId ? BigInt(addStakeData.memId) : undefined],
+    args: [addStakeData.memId !== "0" ? BigInt(addStakeData.memId) : undefined],
   });
   const { data: selectedFam } = useScaffoldContractRead({
     contractName: "Beaters",
     functionName: "familyProps",
-    args: [!!addStakeData.memId ? BigInt(addStakeData.memId) : undefined],
+    args: [BigInt(addStakeData.famId)],
   });
   const isSwitchingFam = useMemo(
     () => !!selectedFam && !!selectedMem && selectedMem.famId != selectedFam.id,
