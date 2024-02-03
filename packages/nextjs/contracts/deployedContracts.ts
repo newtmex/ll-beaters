@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   1891: {
     Beat: {
-      address: "0x6D4a2BeD07865D85Fd010102b8DB6f6fDdAaBB22",
+      address: "0x5cA1b479Aa4C59844DCCF0A46EcE4F54B2cBCFA2",
       abi: [
         {
           inputs: [],
@@ -583,7 +583,7 @@ const deployedContracts = {
       },
     },
     Beaters: {
-      address: "0x835A09214B56049Db8cB14A9264E99a5ef4F6f69",
+      address: "0x9D55bA3ab7c0849614F451feF307006138f8f53d",
       abi: [
         {
           inputs: [
