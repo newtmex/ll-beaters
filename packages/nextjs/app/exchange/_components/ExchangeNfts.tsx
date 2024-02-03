@@ -79,7 +79,6 @@ const DisplayOnSale = <Item extends AssetOnSale>({
   const [acceptOffer, { activeStep, transactionHash }] = useAcceptOffer(signer);
 
   const handleAcceptOffer = async () => {
-    console.log(item);
     try {
       await acceptOffer(item.id, 1);
       refetchOnSale();

@@ -583,7 +583,7 @@ const deployedContracts = {
       },
     },
     Beaters: {
-      address: "0x03C9Ff9Ba4c05B488fC66C74D5a94A17cBB2F878",
+      address: "0x835A09214B56049Db8cB14A9264E99a5ef4F6f69",
       abi: [
         {
           inputs: [
@@ -1174,6 +1174,25 @@ const deployedContracts = {
               internalType: "uint256",
               name: "",
               type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "referrerAddress",
+          outputs: [
+            {
+              internalType: "address",
+              name: "refAddress",
+              type: "address",
             },
           ],
           stateMutability: "view",

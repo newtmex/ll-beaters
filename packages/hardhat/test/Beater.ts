@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { Beat } from "../typechain-types";
+import { ZeroAddress } from "ethers";
 
 describe("Beaters", function () {
   const oneEpoch = 24 * 60 * 60;
@@ -70,10 +71,11 @@ describe("Beaters", function () {
 
       expect(await beaters.getRefId(user1)).to.eq(2);
       expect(await beaters.referredBy(user1)).to.eq(0);
+      expect(await beaters.referrerAddress(user1)).to.eq(ZeroAddress);
     });
 
     it("should not change referrer on subsequent add stake", async function () {
-      const { beaters, user1, member } = await loadFixture(deployBeatersFixture);
+      const { beaters, user1, member, owner } = await loadFixture(deployBeatersFixture);
 
       const refId = 1;
 
@@ -85,6 +87,7 @@ describe("Beaters", function () {
 
       await beaters.connect(user1).addStake(0, 0, 0, { value: 10e14 });
       expect(await beaters.referredBy(user1)).to.eq(refId);
+      expect(await beaters.referrerAddress(user1)).to.eq(owner.address);
       expect(await member.instance.balanceOf(user1)).to.eq(2);
     });
 
@@ -159,11 +162,14 @@ describe("Beaters", function () {
       await time.increase(30 * 24 * 60 * 60); // After 30 days
 
       const famMintCost = await beaters.famMintCost();
+      const famSwitchCost = await beaters.famSwitchCost();
       for (const user of users) {
         await beaters.giveUserBeat(user, famMintCost);
         await beaters.connect(user).addStake(0, 0, 0, { value: 1e14 });
         await beaters.connect(user).mintFamily();
       }
+      await beaters.giveUserBeat(user3, famSwitchCost);
+      await approveSpend(beat.instance, beatersAddr, [user3]);
       await beaters.connect(user3).addStake(0, 2, 0, { value: 20e14 });
 
       const expectedWinners = [1, 2];

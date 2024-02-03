@@ -88,13 +88,14 @@ contract Beaters is Ownable, Qrng {
 
 	function _mintMem(address to, uint256 stake, uint256 famId) internal {
 		uint256 memId = IMember(mem_addr).safeMint(to);
-		_updateMemberFam(memId, famId, stake);
+		_updateMemberFam(memId, famId, stake, to);
 	}
 
 	function _updateMemberFam(
 		uint256 memId,
 		uint256 newFamId,
-		uint256 stake
+		uint256 stake,
+		address sender
 	) internal {
 		uint256 lastFamId = IFamily(fam_addr).lastTokenId();
 		require(newFamId <= lastFamId, "Invalid family Id");
@@ -121,6 +122,11 @@ contract Beaters is Ownable, Qrng {
 
 		FamilyProps storage newFamProps;
 		if (newFamId != 0 && newFamId != memProps.famId) {
+			// Changing Family
+			uint256 cost = famSwitchCost();
+			ERC20Burnable(beat_addr).burnFrom(sender, cost);
+			_totalMint -= cost;
+
 			newFamProps = _familyProps[newFamId];
 		} else {
 			newFamProps = oldFamProps;
@@ -252,7 +258,7 @@ contract Beaters is Ownable, Qrng {
 		} else {
 			_checkMemberOwner(memId, sender);
 
-			_updateMemberFam(memId, famId, stake);
+			_updateMemberFam(memId, famId, stake, sender);
 		}
 
 		_pendingTotalStake += stake;
@@ -385,6 +391,18 @@ contract Beaters is Ownable, Qrng {
 		uint userId = getUserId(user);
 
 		return _referredBy[userId];
+	}
+
+	function referrerAddress(
+		address user
+	) public view returns (address refAddress) {
+		uint referrerId = referredBy(user);
+
+		if (referrerId == 0) {
+			refAddress = address(0);
+		} else {
+			refAddress = _userIds[referrerId];
+		}
 	}
 
 	function memberProps(
