@@ -44,7 +44,7 @@ const ClaimWinnings = () => {
     }
   };
 
-  const { nfts: ownedMembers } = useOwnedNFTs("member");
+  const { nfts: ownedMembers, error: nftsError } = useOwnedNFTs("member");
   const { nfts: ownedFamilies } = useOwnedNFTs("family");
 
   const Display = ({ lGroup }: { lGroup: Group }) => {
@@ -101,6 +101,10 @@ const ClaimWinnings = () => {
   const isLoading = !ownedFamilies || !ownedMembers;
 
   if (isLoading) {
+    if (nftsError) {
+      return <>{nftsError.message}</>;
+    }
+
     return <>Loading..</>;
   }
 

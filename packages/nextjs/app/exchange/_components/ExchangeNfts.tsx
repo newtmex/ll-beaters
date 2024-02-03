@@ -160,7 +160,7 @@ const ExchangeNfts = () => {
 
     return { onSaleAssets, onSaleIds };
   }, [_onSaleAssets]);
-  const { nfts, famAddr, refetch: refetchOwnedNfts } = useOwnedNFTs();
+  const { nfts, famAddr, refetch: refetchOwnedNfts, error: nftsError } = useOwnedNFTs();
   const ownedNFTs = useMemo(() => nfts?.filter(nft => !onSaleIds.includes(makeCollectionId(nft))), [nfts, onSaleIds]);
 
   const signer = useSigner();
@@ -201,6 +201,9 @@ const ExchangeNfts = () => {
   };
 
   if (!ownedNFTs || !onSaleAssets) {
+    if (nftsError) {
+      return <>{nftsError.message}</>;
+    }
     return <>Loading..</>;
   }
 

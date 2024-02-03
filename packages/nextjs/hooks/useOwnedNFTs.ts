@@ -41,10 +41,10 @@ export const useOwnedNFTs = (group: "all" | "member" | "family" = "all") => {
 
   const now = new Date(Math.floor(Date.now() / 1000) * 1000);
 
-  const { data, refetch } = useFetchOwnedAssetsQuery({
+  const { data, refetch, error } = useFetchOwnedAssetsQuery({
     variables: {
       address: userAddress,
-      currentAddress: address || "",
+      currentAddress: userAddress,
       limit,
       offset,
       orderBy,
@@ -65,6 +65,7 @@ export const useOwnedNFTs = (group: "all" | "member" | "family" = "all") => {
   );
 
   return {
+    error,
     refetch,
     memAddr,
     famAddr,

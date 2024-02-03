@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { parseEther } from "viem";
+import { useMemo, useState } from "react";
+import { formatEther, parseEther } from "viem";
 import { useNetwork } from "wagmi";
+import { useReferrerId } from "~~/components/RefLink/useReffererId";
 import { EtherInput } from "~~/components/scaffold-eth";
-import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useApproveSpendBeat, useBeatBalance } from "~~/hooks";
+import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useFamilies } from "~~/hooks/useFamilies";
 import { useOwnedNFTs } from "~~/hooks/useOwnedNFTs";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
 
 const AddStake = () => {
+  const refId = useReferrerId();
   const [addStakeData, _] = useState({
     memId: "0",
     famId: "0",
-    refId: "0",
+    refId: refId || "0",
     value: "0",
   });
   const setAddStakeData = (key: keyof typeof addStakeData, value: string) => {
@@ -23,12 +26,33 @@ const AddStake = () => {
       return Object.assign({}, v);
     });
   };
+  const { data: selectedMem } = useScaffoldContractRead({
+    contractName: "Beaters",
+    functionName: "memberProps",
+    args: [!!addStakeData.memId ? BigInt(addStakeData.memId) : undefined],
+  });
+  const { data: selectedFam } = useScaffoldContractRead({
+    contractName: "Beaters",
+    functionName: "familyProps",
+    args: [!!addStakeData.memId ? BigInt(addStakeData.memId) : undefined],
+  });
+  const isSwitchingFam = useMemo(
+    () => !!selectedFam && !!selectedMem && selectedMem.famId != selectedFam.id,
+    [selectedFam, selectedMem],
+  );
 
   const { chain } = useNetwork();
   const { targetNetwork } = useTargetNetwork();
 
   const writeDisabled = !chain || chain?.id !== targetNetwork.id;
 
+  const { data: famSwitchCost } = useScaffoldContractRead({
+    contractName: "Beaters",
+    functionName: "famSwitchCost",
+  });
+  const { data: beatBal, refetch: refetchBeatBal } = useBeatBalance();
+
+  const { approveSpend, approveSpendIsLoading } = useApproveSpendBeat({ beatAmt: formatEther(famSwitchCost || 0n) });
   const { writeAsync: addStake, isLoading: addStakeIsLoading } = useScaffoldContractWrite({
     contractName: "Beaters",
     functionName: "addStake",
@@ -36,23 +60,21 @@ const AddStake = () => {
     value: parseEther(addStakeData.value),
   });
 
+  const { nfts: ownedMembers, refetch: refectOwnedNFTs } = useOwnedNFTs("member");
+  const families = useFamilies();
+
   const handleWrite = async () => {
     try {
+      isSwitchingFam && (await approveSpend());
       await addStake();
+      isSwitchingFam && refetchBeatBal();
+      refectOwnedNFTs();
     } catch (e: any) {
       const message = getParsedError(e);
       notification.error(message);
     }
   };
-
-  const { nfts: ownedMembers } = useOwnedNFTs("member");
-  const families = useFamilies();
-
-  const isLoading = !ownedMembers || !families || addStakeIsLoading;
-
-  if (isLoading) {
-    return <>Loading..</>;
-  }
+  const isLoading = approveSpendIsLoading || addStakeIsLoading;
 
   return (
     <>
@@ -84,7 +106,7 @@ const AddStake = () => {
         <select
           className="select w-full max-w-xs"
           onChange={e => {
-            const family = families.at(e.target.selectedIndex);
+            const family = families?.at(e.target.selectedIndex);
             family && setAddStakeData("famId", family.tokenId);
           }}
         >
@@ -95,6 +117,14 @@ const AddStake = () => {
           ))}
         </select>
       </div>
+
+      {isSwitchingFam && (
+        <div className="flex items-center">
+          Family Switch Cost: {formatEther(famSwitchCost || 0n)}
+          <br />
+          Beat Bal: {formatEther(beatBal || 0n)}
+        </div>
+      )}
 
       <EtherInput
         value={addStakeData.value}

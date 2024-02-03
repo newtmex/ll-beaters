@@ -1,5 +1,6 @@
 import ClaimWinnings from "./_components/ClaimWinnings";
 import { NextPage } from "next";
+import { RefLink } from "~~/components/RefLink/RefLink";
 
 const ClaimWinningsPage: NextPage = () => {
   return (
@@ -10,6 +11,7 @@ const ClaimWinningsPage: NextPage = () => {
             <span className="block text-2xl mb-2">Claim</span>
             <span className="block text-4xl font-bold">LL_Beaters</span>
           </h1>
+          <RefLink />
         </div>
 
         <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">

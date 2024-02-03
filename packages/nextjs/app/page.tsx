@@ -1,6 +1,7 @@
 import AddStake from "./_components/AddStake";
 import MintFamily from "./_components/MintFamily";
 import type { NextPage } from "next";
+import { RefLink } from "~~/components/RefLink/RefLink";
 
 const Home: NextPage = () => {
   return (
@@ -11,6 +12,7 @@ const Home: NextPage = () => {
             <span className="block text-2xl mb-2">Welcome to</span>
             <span className="block text-4xl font-bold">LL_Beaters</span>
           </h1>
+          <RefLink />
         </div>
 
         <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">

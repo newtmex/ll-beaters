@@ -1,6 +1,7 @@
 "use client";
 
 import { PropsWithChildren, useEffect, useMemo } from "react";
+import { useReferrerId } from "./RefLink/useReffererId";
 import { ApolloProvider } from "@apollo/client";
 import { LiteflowProvider } from "@liteflow/react";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
@@ -38,6 +39,8 @@ function AccountProvider({ children, onError }: PropsWithChildren<{ onError: (co
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   const price = useNativeCurrencyPrice();
   const setNativeCurrencyPrice = useGlobalState(state => state.setNativeCurrencyPrice);
+
+  useReferrerId();
 
   useEffect(() => {
     if (price > 0) {
