@@ -1,6 +1,6 @@
 # LL-Beaters
 
-LL-Beaters is a decentralized perpetual lottery platform that offers participants a chance to win rewards by staking ETH in lottery challenges. The platform operates on the Ethereum blockchain and utilizes ERC20 and ERC721 standards for tokenization and non-fungible assets. Winnings are distributed to holders of Families and Members of such families, represented as ERC721 NFTs, with additional rewards for participants with referrals.
+LL-Beaters is a decentralized perpetual lottery platform that offers participants a chance to win rewards by staking ETH in lottery challenges. The platform operates on the [Lightlink Gasless Blockchain](https://www.lightlink.io/) and utilizes ERC20 and ERC721 standards for tokenization and non-fungible assets. Winnings are distributed to holders of Families and Members of such families, represented as ERC721 NFTs, with additional rewards for participants with referrals.
 
 ## User Story
 
@@ -8,7 +8,7 @@ User begins their journey on LL-Beaters by staking ETH and choosing a Family the
 
 After each epoch elapses, any wallet address can roll the dice, and a subsection of the Families available will be selected randomly using [API3's QRNG](https://docs.api3.org/reference/qrng/). All the winning Families will receive an equal share of the [Beat Token](https://pegasus.lightlink.io/address/0xFDC16E5220A83F6e8BD2C5FB0923E1e418C33644) (LL-Beaters platform token). Then, owners and members of such families will receive their share following the [token economics](#token-economics) as described.
 
-Holders of the [Family](https://pegasus.lightlink.io/address/0x4306D6012325BF7b0d24BC55994439DDa869D092) or [Member](https://pegasus.lightlink.io/address/0xEF63b90842AbBeD1A9B27A56A685EADcC4157c5A) NFTs can trade them for Beat Tokens in the [market place](https://ll-beaters.vercel.app/exchange) deployed using the [LiteFlow](https://liteflow.com/) infrastructure and tooling. The desirable trait of these NFTs is the history of activity recorded in them and the potential Beat Tokens they might hold. Referrers also receive part of the fees after successful exchange of the NFTs on the marketplace.
+Holders of the [Family](https://pegasus.lightlink.io/address/0x4306D6012325BF7b0d24BC55994439DDa869D092) or [Member](https://pegasus.lightlink.io/address/0xEF63b90842AbBeD1A9B27A56A685EADcC4157c5A) NFTs can trade them for Beat Tokens in the [marketplace](https://ll-beaters.vercel.app/exchange) deployed using the [LiteFlow](https://liteflow.com/) infrastructure and tooling. The desirable trait of these NFTs is the history of activity recorded in them and the potential Beat Tokens they might hold. Referrers also receive part of the fees after successful exchange of the NFTs on the marketplace.
 
 At any time in the future, users with Beat Tokens can withdraw ETH from the contract by burning the Beat Tokens and paying a small fee.
 
@@ -44,16 +44,16 @@ LL-Beaters operates on the Beat token, which serves as the native currency of th
 
     ```solidity
         function _getEpochMint(uint256 epoch) internal pure returns (uint256 mint) {
-        mint = EPOCH_ZERO_MINT;
-        uint256 halfLife = 3_465;
+            mint = EPOCH_ZERO_MINT;
+            uint256 halfLife = 3_465;
 
-                mint >>= (epoch / halfLife);
-                epoch %= halfLife;
-                mint -= ((mint * epoch) / halfLife / 2);
-            }
+            mint >>= (epoch / halfLife);
+            epoch %= halfLife;
+            mint -= ((mint * epoch) / halfLife / 2);
+        }
     ```
 
-    1. 75% of an epoch's emission is shared among winning Families and their Members. 5% of this amount is reserved for referrers of the holders of such Families or Members. Where there's not referrer, the value is burnt
+    1. 75% of an epoch's emission is shared among winning Families and their Members. 5% of this amount is reserved for referrers of the holders of such Families or Members. Where there's not referrer, the referrer value is burnt
 
     1. 20% of epoch's emission is reserved for liquidity mining, social mining, bounties and other ecosystem activities.
 
