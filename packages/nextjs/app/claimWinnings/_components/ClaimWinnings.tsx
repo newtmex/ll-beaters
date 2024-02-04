@@ -108,7 +108,7 @@ const ClaimWinnings = () => {
     return <>Loading..</>;
   }
 
-  if (!ownedFamilies.length || !ownedMembers.length) {
+  if (!ownedFamilies.length && !ownedMembers.length) {
     return <>Nothing to claim. Stake ETH, Mint Family or Buy any of them from the Market Place</>;
   }
 
