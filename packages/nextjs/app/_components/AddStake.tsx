@@ -26,12 +26,12 @@ const AddStake = () => {
       return Object.assign({}, v);
     });
   };
-  const { data: selectedMem } = useScaffoldContractRead({
+  const { data: selectedMem, refetch: refetchSelectedMem } = useScaffoldContractRead({
     contractName: "Beaters",
     functionName: "memberProps",
     args: [addStakeData.memId !== "0" ? BigInt(addStakeData.memId) : undefined],
   });
-  const { data: selectedFam } = useScaffoldContractRead({
+  const { data: selectedFam, refetch: refetchSelectedFam } = useScaffoldContractRead({
     contractName: "Beaters",
     functionName: "familyProps",
     args: [BigInt(addStakeData.famId)],
@@ -40,6 +40,12 @@ const AddStake = () => {
     () => !!selectedFam && !!selectedMem && selectedMem.famId != selectedFam.id,
     [selectedFam, selectedMem],
   );
+  const refetchSwitchingData = async () => {
+    setTimeout(() => {
+      addStakeData.memId !== "0" && refetchSelectedMem();
+      refetchSelectedFam();
+    });
+  };
 
   const { chain } = useNetwork();
   const { targetNetwork } = useTargetNetwork();
@@ -90,6 +96,7 @@ const AddStake = () => {
               const ownedMember = ownedMembers.at(e.target.selectedIndex);
               if (ownedMember) {
                 setAddStakeData("memId", ownedMember.tokenId);
+                refetchSwitchingData();
               }
             }}
           >
@@ -108,6 +115,7 @@ const AddStake = () => {
           onChange={e => {
             const family = families?.at(e.target.selectedIndex);
             family && setAddStakeData("famId", family.tokenId);
+            refetchSwitchingData();
           }}
         >
           {families?.map(family => (

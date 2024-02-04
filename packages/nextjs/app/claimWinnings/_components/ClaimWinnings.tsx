@@ -115,8 +115,8 @@ const ClaimWinnings = () => {
   return (
     <>
       Beat Bal: {formatEther(beatBal || 0n)}
-      {ownedMembers.length && <Display lGroup="member" key="mem-display" />}
-      {ownedFamilies.length && <Display lGroup="family" key="fam-display" />}
+      {!!ownedMembers.length && <Display lGroup="member" key="mem-display" />}
+      {!!ownedFamilies.length && <Display lGroup="family" key="fam-display" />}
     </>
   );
 };
