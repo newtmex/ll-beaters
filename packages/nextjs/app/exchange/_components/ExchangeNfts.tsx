@@ -91,8 +91,8 @@ const DisplayOnSale = <Item extends AssetOnSale>({
   const handleAcceptOffer = async () => {
     try {
       if (!canAffordItem) {
-        throw (
-          "Your Beat balance of " + formatEther(beatBal || 0n) + " is too low for this item: " + formatEther(itemPrice)
+        throw new Error(
+          "Your Beat balance of " + formatEther(beatBal || 0n) + " is too low for this item: " + formatEther(itemPrice),
         );
       }
 
