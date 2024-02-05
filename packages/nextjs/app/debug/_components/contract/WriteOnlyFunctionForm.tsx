@@ -48,6 +48,7 @@ export const WriteOnlyFunctionForm = ({
     functionName: abiFunction.name,
     abi: abi,
     args: getParsedContractFunctionArgs(form),
+    gasPrice: 0n,
   });
 
   const handleWrite = async () => {

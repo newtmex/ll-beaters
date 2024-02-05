@@ -44,6 +44,7 @@ export const useScaffoldContractWrite = <
     functionName: functionName as any,
     args: args as unknown[],
     value: value,
+    gasPrice: 0n,
     ...writeConfig,
   });
 
