@@ -5,15 +5,17 @@ import { toAddress } from "@liteflow/core";
 import { AcceptOfferStep, CreateOfferStep, useAcceptOffer, useCreateOffer } from "@liteflow/react";
 import { BigNumber } from "ethers";
 import { formatEther } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { IntegerInput } from "~~/components/scaffold-eth";
 import { AssetDetailFragment, FetchOnSaleAssetsQuery, OffersOrderBy, useFetchOnSaleAssetsQuery } from "~~/graphql";
+import { useBeatBalance } from "~~/hooks";
 import useNow from "~~/hooks/liteflow/useNow";
 import useOrderByQuery from "~~/hooks/liteflow/useOrderByQuery";
 import usePaginateQuery from "~~/hooks/liteflow/usePaginateQuery";
 import { parseBigNumber } from "~~/hooks/liteflow/useParseBigNumber";
 import useSigner from "~~/hooks/liteflow/useSigner";
 import { useDeployedContractInfo, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useOwnedNFTs } from "~~/hooks/useOwnedNFTs";
 import { formatAddress, formatString, isSameAddress } from "~~/utils/liteflow";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
@@ -66,6 +68,14 @@ const DisplayOnSale = <Item extends AssetOnSale>({
   item: Item;
   refetchOnSale: () => void;
 }) => {
+  const { chain } = useNetwork();
+  const { targetNetwork } = useTargetNetwork();
+  const writeDisabled = !chain || chain?.id !== targetNetwork.id;
+
+  const itemPrice = useMemo(() => BigInt(item.unitPrice || "0"), [item]);
+  const { data: beatBal, refetch: refetchBeatBal } = useBeatBalance();
+  const canAffordItem = !!beatBal && beatBal >= itemPrice;
+
   const { address } = useAccount();
   const { famAddr } = useOwnedNFTs();
   const isFamily = item.asset.collectionAddress == famAddr;
@@ -80,8 +90,15 @@ const DisplayOnSale = <Item extends AssetOnSale>({
 
   const handleAcceptOffer = async () => {
     try {
+      if (!canAffordItem) {
+        throw (
+          "Your Beat balance of " + formatEther(beatBal || 0n) + " is too low for this item: " + formatEther(itemPrice)
+        );
+      }
+
       await acceptOffer(item.id, 1);
       refetchOnSale();
+      refetchBeatBal();
     } catch (e: any) {
       const message = getParsedError(e);
       notification.error(message);
@@ -102,13 +119,18 @@ const DisplayOnSale = <Item extends AssetOnSale>({
         Stake Weight: {formatEther("totalStakeWeight" in props ? props.totalStakeWeight : props.stakeWeight)}
       </div>
       <div className="flex items-center">
-        Price: {item.currency.symbol} {formatEther(BigInt(item.unitPrice || "0"))}
+        Price: {item.currency.symbol} {formatEther(itemPrice)}{" "}
+        {!canAffordItem && <span color="red">Your Beat Bal {formatEther(beatBal || 0n)} is too low for this item</span>}
       </div>
 
       {!isSameAddress(address || "", item.maker.address) && (
         <div className="flex items-center">
           {activeStep === AcceptOfferStep.INITIAL && (
-            <button className="btn btn-secondary btn-sm" onClick={handleAcceptOffer}>
+            <button
+              disabled={writeDisabled || !canAffordItem}
+              className="btn btn-secondary btn-sm"
+              onClick={handleAcceptOffer}
+            >
               Buy {nftType} {collectionId}
             </button>
           )}
