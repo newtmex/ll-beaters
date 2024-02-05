@@ -15,7 +15,8 @@ export const metadata: Metadata = {
     default: "LL-Beaters App",
     template: "%s | LL-Beaters",
   },
-  description: "Built with 🏗 Scaffold-ETH 2",
+  description:
+    "LL-Beaters is a decentralized perpetual lottery platform that offers participants a chance to win rewards by staking ETH in lottery challenges. The platform operates on the Lightlink Gasless Blockchain and utilizes ERC20 and ERC721 standards for tokenization and non-fungible assets. Winnings are distributed to holders of Families and Members of such families, represented as ERC721 NFTs, with additional rewards for participants with referrals.",
 
   icons: {
     icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
