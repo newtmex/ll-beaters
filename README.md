@@ -72,3 +72,7 @@ In the future, I plan to enhance LL-Beaters with additional features such as:
 -   Expansion of the referral program to further incentivize community growth
 
 -   Enhanced user interface and experience for seamless participation in lottery challenges
+
+## Media
+-   [Pitch Deck](LL-Beaters-Pitch-Deck.key)
+-   [Presentation](https://youtu.be/ZIDCNvCBcK0)
