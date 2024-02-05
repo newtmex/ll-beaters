@@ -9,7 +9,6 @@ import { useAccount, useNetwork } from "wagmi";
 import { IntegerInput } from "~~/components/scaffold-eth";
 import { AssetDetailFragment, FetchOnSaleAssetsQuery, OffersOrderBy, useFetchOnSaleAssetsQuery } from "~~/graphql";
 import { useBeatBalance } from "~~/hooks";
-import useNow from "~~/hooks/liteflow/useNow";
 import useOrderByQuery from "~~/hooks/liteflow/useOrderByQuery";
 import usePaginateQuery from "~~/hooks/liteflow/usePaginateQuery";
 import { parseBigNumber } from "~~/hooks/liteflow/useParseBigNumber";
@@ -159,9 +158,8 @@ const ExchangeNfts = () => {
 
   const orderBy = useOrderByQuery<OffersOrderBy>("CREATED_AT_DESC");
   const { limit, offset } = usePaginateQuery();
-  const now = useNow();
   const { data: _onSaleAssets, refetch: refetchOnSale } = useFetchOnSaleAssetsQuery({
-    variables: { address: connectedAddress || "", limit, offset, orderBy, now },
+    variables: { address: connectedAddress || "", limit, offset, orderBy },
   });
   const { onSaleAssets, onSaleIds } = useMemo(<T extends AssetOnSale>() => {
     const values = (__onSaleAssets = _onSaleAssets || __onSaleAssets)?.offers?.nodes.reduce<{
