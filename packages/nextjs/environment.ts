@@ -143,7 +143,7 @@ const cache = new LRUCache({
 });
 
 const getEnvironment = async (): Promise<Environment> => {
-  invariant(process.env.NEXT_PUBLIC_BASE_URL, "Base url is not defined");
+  invariant(process.env.NEXT_PUBLIC_BASE_URL, "Base URL is not defined");
   invariant(process.env.NEXT_PUBLIC_LITEFLOW_API_KEY, "API key is not defined");
   invariant(process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID, "Wallet connect project id is not defined");
   const config = await cache.fetch("config");
