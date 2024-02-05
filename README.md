@@ -26,6 +26,8 @@ _Marketplace View_
 
 ## Key Features
 
+-   **Gasless Transactions**: LL-Beaters users don't pay for transaction fees as the contracts are deployed with Lightlink Enterprise Mode.
+
 -   **Decentralized Perpetual Lottery**: LL-Beaters operates as a decentralized perpetual lottery platform within unique Family structures.
 
 -   **Unique Referral IDs:** Participants receive unique referral IDs for additional earnings by sharing and referring others.
@@ -74,14 +76,15 @@ In the future, I plan to enhance LL-Beaters with additional features such as:
 -   Enhanced user interface and experience for seamless participation in lottery challenges
 
 ## Media
+
 -   [Pitch Deck](LL-Beaters-Pitch-Deck.key)
 -   [Presentation](https://youtu.be/ZIDCNvCBcK0)
 
 ## Enterprice Mode
+
 Contracts whitelisted for Gasless transaction provided by Lightlink
 
 1. [LL-Beaters](https://pegasus.lightlink.io/address/0x4C9E9F26919C9A4D5B38Ee4F7ed1b7f5158f33B8): 0x4C9E9F26919C9A4D5B38Ee4F7ed1b7f5158f33B8
 1. [Beat Token](https://pegasus.lightlink.io/address/0xFDC16E5220A83F6e8BD2C5FB0923E1e418C33644): 0xFDC16E5220A83F6e8BD2C5FB0923E1e418C33644
 1. [Family NFT](https://pegasus.lightlink.io/address/0x4306D6012325BF7b0d24BC55994439DDa869D092): 0x4306D6012325BF7b0d24BC55994439DDa869D092
 1. [Member NFT](https://pegasus.lightlink.io/address/0xEF63b90842AbBeD1A9B27A56A685EADcC4157c5A): 0xEF63b90842AbBeD1A9B27A56A685EADcC4157c5A
-
