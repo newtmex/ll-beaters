@@ -158,7 +158,11 @@ const ExchangeNfts = () => {
 
   const orderBy = useOrderByQuery<OffersOrderBy>("CREATED_AT_DESC");
   const { limit, offset } = usePaginateQuery();
-  const { data: _onSaleAssets, refetch: refetchOnSale } = useFetchOnSaleAssetsQuery({
+  const {
+    data: _onSaleAssets,
+    refetch: refetchOnSale,
+    error: onSaleErr,
+  } = useFetchOnSaleAssetsQuery({
     variables: { address: connectedAddress || "", limit, offset, orderBy },
   });
   const { onSaleAssets, onSaleIds } = useMemo(<T extends AssetOnSale>() => {
@@ -221,8 +225,8 @@ const ExchangeNfts = () => {
   };
 
   if (!ownedNFTs || !onSaleAssets) {
-    if (nftsError) {
-      return <>{nftsError.message}</>;
+    if (nftsError || onSaleErr) {
+      return <>{nftsError?.message || onSaleErr?.message}</>;
     }
     return <>Loading..</>;
   }
