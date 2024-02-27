@@ -122,6 +122,7 @@ contract Beaters is Ownable, Qrng {
 
 		FamilyProps storage newFamProps;
 		if (newFamId != 0 && newFamId != memProps.famId) {
+			// TODO if it is new member, do not collect famSwitch Fee
 			// Changing Family
 			uint256 cost = famSwitchCost();
 			ERC20Burnable(beat_addr).burnFrom(sender, cost);

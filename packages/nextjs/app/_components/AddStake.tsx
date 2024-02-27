@@ -37,7 +37,9 @@ const AddStake = () => {
     args: [BigInt(addStakeData.famId)],
   });
   const isSwitchingFam = useMemo(
-    () => !!selectedFam && !!selectedMem && selectedMem.famId != selectedFam.id,
+    () =>
+      !!selectedFam &&
+      ((!selectedMem && selectedFam?.id > 0) || (!!selectedMem && selectedMem.famId != selectedFam.id)),
     [selectedFam, selectedMem],
   );
   const refetchSwitchingData = async () => {
