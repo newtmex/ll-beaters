@@ -36,12 +36,15 @@ const AddStake = () => {
     functionName: "familyProps",
     args: [BigInt(addStakeData.famId)],
   });
-  const isSwitchingFam = useMemo(
-    () =>
-      !!selectedFam &&
-      ((!selectedMem && selectedFam?.id > 0) || (!!selectedMem && selectedMem.famId != selectedFam.id)),
-    [selectedFam, selectedMem],
-  );
+  const isSwitchingFam = useMemo(() => {
+    let isSwitchingFam = !!selectedFam && selectedFam.id != 0n && selectedFam.id == selectedMem?.famId;
+
+    if (!selectedMem && selectedFam && selectedFam.id != 0n) {
+      isSwitchingFam = true;
+    }
+
+    return isSwitchingFam;
+  }, [selectedFam, selectedMem]);
   const refetchSwitchingData = async () => {
     setTimeout(() => {
       addStakeData.memId !== "0" && refetchSelectedMem();
@@ -73,7 +76,18 @@ const AddStake = () => {
 
   const handleWrite = async () => {
     try {
-      isSwitchingFam && (await approveSpend());
+      if (isSwitchingFam) {
+        if (famSwitchCost == undefined || beatBal == undefined) {
+          console.log({ famSwitchCost, beatBal });
+          throw new Error("Beat costs not set");
+        }
+        if (famSwitchCost > beatBal) {
+          throw new Error("Insuficient Beat balance to switch family");
+        }
+
+        await approveSpend();
+      }
+
       await addStake();
       isSwitchingFam && refetchBeatBal();
       refectOwnedNFTs();
